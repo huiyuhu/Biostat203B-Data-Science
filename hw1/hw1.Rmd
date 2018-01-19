@@ -1,1 +1,12 @@
 sample solution
+
+
+# Part 1 
+ Finished the GitHub setting.
+ 
+# Part 2
+
+ * 1. How many persons are in the data set (statisticians call this n)? How many SNPs are in the data set (statisticians call this p)?
+ 
+
+ 
