@@ -1,5 +1,11 @@
-sample solution
+---
+title: "hw1"
+author: "Huiyu Hu"
+date: "1/18/2018"
+output: html_document
+---
 
+sample solution
 
 # Part 1 
  Finished the GitHub setting.
@@ -7,8 +13,7 @@ sample solution
 # Part 2
 
  * 1. How many persons are in the data set (statisticians call this n)? How many SNPs are in the data set (statisticians call this p)?
+ 
 ```{bash}
 awk 'END { print NR }' /home/m280-data/hw1/merge-geno.bim
 ```
-
- 
