@@ -1,5 +1,5 @@
 ---
-title: "hw1"
+title: "HW1"
 author: "Huiyu Hu"
 date: "1/18/2018"
 output: html_document
@@ -24,8 +24,9 @@ awk 'END { print NR }' /home/m280-data/hw1/merge-geno.bim
 
  * 2. Which chromosomes does this data set contain? How many SNPs are in each chromosome?
 ```{bash}
- awk < /home/m280-data/hw1/merge-geno.bim '{print $1}' | uniq 
+ awk < /home/m280-data/hw1/merge-geno.bim '{print $1}' | uniq -c
 ```
+
 
  
  
