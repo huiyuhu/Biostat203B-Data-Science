@@ -216,6 +216,68 @@ head -20 /home/huiyuhu/biostat-m280-2018-winter/hw1/merge-geno.hehehe</code></pr
 ## 2,0200034,0200001,0200015,F,
 ## 2,0200035,0200001,0200015,F,</code></pre>
 </div>
+<div id="part-3" class="section level1">
+<h1>Part 3</h1>
+<ol style="list-style-type: decimal">
+<li></li>
+</ol>
+<pre class="r"><code>  ## parsing command arguments
+  for (arg in commandArgs(TRUE)) {
+    eval(parse(text=arg))
+  }
+  
+  ## check if a given integer is prime
+  isPrime = function(n) {
+    if (n &lt;= 3) {
+      return (TRUE)
+    }
+    if (any((n %% 2:floor(sqrt(n))) == 0)) {
+      return (FALSE)
+    }
+    return (TRUE)
+  }
+  
+  ## estimate mean only using observation with prime indices
+  estMeanPrimes = function (x) {
+    n = length(x)
+    ind = sapply(1:n, isPrime)
+    return (mean(x[ind]))
+  }
+  
+  
+runSim &lt;- function(seed, n, dist, rep){
+    # step 1: set random seed
+    set.seed(seed)
+    
+  sum1 &lt;- 0
+  sum2 &lt;- 0
+  for ( i in 1:rep) {
+    # step 2: generate data according to argument dist
+    if (dist == &quot;gaussian&quot;){
+      x = rnorm(n,0,1)
+    }
+    else if (dist == &quot;t1&quot;){
+      x = rt(n, df=1)
+    }
+    else if (dist == &quot;t5&quot;){
+      x = rt(n, df=5)
+    }
+    
+    # estimate mean
+    emp &lt;- estMeanPrimes(x)
+    emc &lt;- mean(x)
+    sum1 &lt;- sum1 + (emp-0)^2
+    sum2 &lt;- sum2 + (emc-0)^2
+  }
+  
+  result &lt;- paste(&quot;MSE (primed-indexed average estimator) =&quot;,sum1/rep,  &quot;;  MSE (classical sample average estimator) =&quot;, sum2/rep, sep = &quot; &quot;)
+  return(result)
+
+}
+
+runSim(200,5000,&quot;gaussian&quot;,50)</code></pre>
+<pre><code>## [1] &quot;MSE (primed-indexed average estimator) = 0.00185493603786513 ;  MSE (classical sample average estimator) = 0.000197309250389023&quot;</code></pre>
+</div>
 
 
 

@@ -2,7 +2,9 @@
 title: "HW1"
 author: "Huiyu Hu"
 date: "1/18/2018"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 
@@ -49,6 +51,65 @@ awk '{OFS = ","} {print $1, $2, $3, $4, $5, $6}' /home/m280-data/hw1/merge-geno.
 head -20 /home/huiyuhu/biostat-m280-2018-winter/hw1/merge-geno.hehehe
 ```
  
+# Part 3 
+1. 
+```{r}
+  ## parsing command arguments
+  for (arg in commandArgs(TRUE)) {
+    eval(parse(text=arg))
+  }
+  
+  ## check if a given integer is prime
+  isPrime = function(n) {
+    if (n <= 3) {
+      return (TRUE)
+    }
+    if (any((n %% 2:floor(sqrt(n))) == 0)) {
+      return (FALSE)
+    }
+    return (TRUE)
+  }
+  
+  ## estimate mean only using observation with prime indices
+  estMeanPrimes = function (x) {
+    n = length(x)
+    ind = sapply(1:n, isPrime)
+    return (mean(x[ind]))
+  }
+  
+  
+runSim <- function(seed, n, dist, rep){
+    # step 1: set random seed
+    set.seed(seed)
+    
+  sum1 <- 0
+  sum2 <- 0
+  for ( i in 1:rep) {
+    # step 2: generate data according to argument dist
+    if (dist == "gaussian"){
+      x = rnorm(n,0,1)
+    }
+    else if (dist == "t1"){
+      x = rt(n, df=1)
+    }
+    else if (dist == "t5"){
+      x = rt(n, df=5)
+    }
+    
+    # estimate mean
+    emp <- estMeanPrimes(x)
+    emc <- mean(x)
+    sum1 <- sum1 + (emp-0)^2
+    sum2 <- sum2 + (emc-0)^2
+  }
+  
+  result <- paste("MSE (primed-indexed average estimator) =",sum1/rep,  ";  MSE (classical sample average estimator) =", sum2/rep, sep = " ")
+  return(result)
 
+}
+
+#test
+runSim(200,5000,"gaussian",50)
+```
  
  
