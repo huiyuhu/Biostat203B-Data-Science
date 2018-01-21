@@ -164,14 +164,17 @@ $(document).ready(function () {
 <ol start="3" style="list-style-type: decimal">
 <li>MAP4 (microtubule-associated protein 4) is a gene on chromosome 3 spanning positions 47,892,180 bp – 48,130,769 bp. How many SNPs are located within MAP4 gene?</li>
 </ol>
-<pre class="bash"><code>awk '{if ($1 = 3 &amp;&amp; $4 &gt;= 47892180 &amp;&amp; $4 &lt;= 48130769) print}' /home/m280-data/hw1/merge-geno.bim | wc -l</code></pre>
-<pre><code>## 12423</code></pre>
+<pre class="bash"><code>awk '{if ($1 == 3 &amp;&amp; $4 &gt;= 47892180 &amp;&amp; $4 &lt;= 48130769) print}' /home/m280-data/hw1/merge-geno.bim | wc -l</code></pre>
+<pre><code>## 894</code></pre>
 <ul>
-<li>Answer: There are 12423 SNPs lovated within MAP4 gene.</li>
+<li>Answer: There are 894 SNPs lovated within MAP4 gene.</li>
 </ul>
 <ol start="4" style="list-style-type: decimal">
 <li>Reformat</li>
 </ol>
+<ul>
+<li>For .bim file:</li>
+</ul>
 <pre class="bash"><code> echo &quot;    2.40  = FILE FORMAT VERSION NUMBER.&quot; &gt; /home/huiyuhu/biostat-m280-2018-winter/hw1/merge-geno.lalala
  echo '8348674  = NUMBER OF SNPS LISTED HERE.' &gt;&gt; /home/huiyuhu/biostat-m280-2018-winter/hw1/merge-geno.lalala
  awk '{OFS = &quot;,&quot;} {print $2, $1, $4}' /home/m280-data/hw1/merge-geno.bim  &gt;&gt; /home/huiyuhu/biostat-m280-2018-winter/hw1/merge-geno.lalala
@@ -186,6 +189,32 @@ $(document).ready(function () {
 ## 1-58432,1,58432
 ## 1-58448,1,58448
 ## 1-58814,1,58814</code></pre>
+<ul>
+<li>For .fam file</li>
+<li>Comments: 1, change seperator to “,”; 2, strip the string T2DG from the IDs; 3, convert sex from number to char; 4, remove missing value.</li>
+</ul>
+<pre class="bash"><code>awk '{OFS = &quot;,&quot;} {print $1, $2, $3, $4, $5, $6}' /home/m280-data/hw1/merge-geno.fam | sed 's/T2DG//g' | awk -F, -v sex=&quot;&quot; '{OFS = &quot;,&quot;} {if ($5 == 1) sex = &quot;M&quot;; else sex = &quot;F&quot;} {print $1,$2,$3,$4, sex,$6}' | awk -F, '{OFS=&quot;,&quot;} { for (i = 1; i &lt;= NF; i++) {$i = ($i == 0 ? &quot;&quot; : $i)}; print }'  &gt; /home/huiyuhu/biostat-m280-2018-winter/hw1/merge-geno.hehehe 
+head -20 /home/huiyuhu/biostat-m280-2018-winter/hw1/merge-geno.hehehe</code></pre>
+<pre><code>## 2,0200001,,,M,
+## 2,0200002,,,F,
+## 2,0200003,,,F,
+## 2,0200004,,,F,
+## 2,0200005,,,M,
+## 2,0200006,,,M,
+## 2,0200007,,,F,
+## 2,0200008,,,F,
+## 2,0200009,,,F,
+## 2,0200012,,,M,
+## 2,0200013,,,M,
+## 2,0200018,,,M,
+## 2,0200023,,,F,
+## 2,0200024,,,M,
+## 2,0200027,,,F,
+## 2,0200031,0200001,0200015,M,
+## 2,0200032,0200001,0200015,F,
+## 2,0200033,0200001,0200015,F,
+## 2,0200034,0200001,0200015,F,
+## 2,0200035,0200001,0200015,F,</code></pre>
 </div>
 
 
