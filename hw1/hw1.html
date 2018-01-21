@@ -127,25 +127,25 @@ $(document).ready(function () {
 
 <div id="part-1" class="section level1">
 <h1>Part 1</h1>
-<p>Finished the GitHub setting.</p>
+<ul>
+<li>Finished the GitHub setting.</li>
+</ul>
 </div>
 <div id="part-2" class="section level1">
 <h1>Part 2</h1>
-<ul>
-<li><ol style="list-style-type: decimal">
+<ol style="list-style-type: decimal">
 <li>How many persons are in the data set (statisticians call this n)? How many SNPs are in the data set (statisticians call this p)?</li>
-</ol></li>
-</ul>
+</ol>
 <pre class="bash"><code>awk 'END { print NR }' /home/m280-data/hw1/merge-geno.fam</code></pre>
 <pre><code>## 959</code></pre>
 <pre class="bash"><code>awk 'END { print NR }' /home/m280-data/hw1/merge-geno.bim</code></pre>
 <pre><code>## 8348674</code></pre>
 <ul>
-<li><p>Answer: n = 959; p = 8348674</p></li>
-<li><ol start="2" style="list-style-type: decimal">
-<li>Which chromosomes does this data set contain? How many SNPs are in each chromosome?</li>
-</ol></li>
+<li>Answer: n = 959; p = 8348674</li>
 </ul>
+<ol start="2" style="list-style-type: decimal">
+<li>Which chromosomes does this data set contain? How many SNPs are in each chromosome?</li>
+</ol>
 <pre class="bash"><code> awk &lt; /home/m280-data/hw1/merge-geno.bim '{print $1}' | uniq -c</code></pre>
 <pre><code>## 1309299 1
 ## 1215399 3
@@ -158,6 +158,17 @@ $(document).ready(function () {
 ##  477990 17
 ##  393615 19
 ##  239352 21</code></pre>
+<ul>
+<li>Answer:</li>
+</ul>
+<ol start="3" style="list-style-type: decimal">
+<li>MAP4 (microtubule-associated protein 4) is a gene on chromosome 3 spanning positions 47,892,180 bp – 48,130,769 bp. How many SNPs are located within MAP4 gene?</li>
+</ol>
+<pre class="bash"><code>awk '{if ($1 = 3 &amp;&amp; $4 &gt;= 47892180 &amp;&amp; $4 &lt;= 48130769) print}' /home/m280-data/hw1/merge-geno.bim | wc -l</code></pre>
+<pre><code>## 12423</code></pre>
+<ul>
+<li>Answer: There are 12423 SNPs lovated within MAP4 gene.</li>
+</ul>
 </div>
 
 
