@@ -125,7 +125,6 @@ $(document).ready(function () {
 </div>
 
 
-<p>sample solution</p>
 <div id="part-1" class="section level1">
 <h1>Part 1</h1>
 <p>Finished the GitHub setting.</p>
@@ -137,10 +136,28 @@ $(document).ready(function () {
 <li>How many persons are in the data set (statisticians call this n)? How many SNPs are in the data set (statisticians call this p)?</li>
 </ol></li>
 </ul>
-<pre class="bash"><code>awk 'END { print NR }' /home/m280-data/hw1/merge-geno.bim</code></pre>
-<pre><code>## 8348674</code></pre>
 <pre class="bash"><code>awk 'END { print NR }' /home/m280-data/hw1/merge-geno.fam</code></pre>
 <pre><code>## 959</code></pre>
+<pre class="bash"><code>awk 'END { print NR }' /home/m280-data/hw1/merge-geno.bim</code></pre>
+<pre><code>## 8348674</code></pre>
+<ul>
+<li><p>Answer: n = 959; p = 8348674</p></li>
+<li><ol start="2" style="list-style-type: decimal">
+<li>Which chromosomes does this data set contain? How many SNPs are in each chromosome?</li>
+</ol></li>
+</ul>
+<pre class="bash"><code> awk &lt; /home/m280-data/hw1/merge-geno.bim '{print $1}' | uniq </code></pre>
+<pre><code>## 1
+## 3
+## 5
+## 7
+## 9
+## 11
+## 13
+## 15
+## 17
+## 19
+## 21</code></pre>
 </div>
 
 

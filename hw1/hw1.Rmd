@@ -5,7 +5,6 @@ date: "1/18/2018"
 output: html_document
 ---
 
-sample solution
 
 # Part 1 
  Finished the GitHub setting.
@@ -14,10 +13,19 @@ sample solution
 
  * 1. How many persons are in the data set (statisticians call this n)? How many SNPs are in the data set (statisticians call this p)?
  
-```{bash}
-awk 'END { print NR }' /home/m280-data/hw1/merge-geno.bim
-```
+
 ```{bash}
 awk 'END { print NR }' /home/m280-data/hw1/merge-geno.fam
 ```
+```{bash}
+awk 'END { print NR }' /home/m280-data/hw1/merge-geno.bim
+```
+ * Answer: n = 959; p = 8348674
 
+ * 2. Which chromosomes does this data set contain? How many SNPs are in each chromosome?
+```{bash}
+ awk < /home/m280-data/hw1/merge-geno.bim '{print $1}' | uniq 
+```
+
+ 
+ 
