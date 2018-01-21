@@ -169,6 +169,23 @@ $(document).ready(function () {
 <ul>
 <li>Answer: There are 12423 SNPs lovated within MAP4 gene.</li>
 </ul>
+<ol start="4" style="list-style-type: decimal">
+<li>Reformat</li>
+</ol>
+<pre class="bash"><code> echo &quot;    2.40  = FILE FORMAT VERSION NUMBER.&quot; &gt; /home/huiyuhu/biostat-m280-2018-winter/hw1/merge-geno.lalala
+ echo '8348674  = NUMBER OF SNPS LISTED HERE.' &gt;&gt; /home/huiyuhu/biostat-m280-2018-winter/hw1/merge-geno.lalala
+ awk '{OFS = &quot;,&quot;} {print $2, $1, $4}' /home/m280-data/hw1/merge-geno.bim  &gt;&gt; /home/huiyuhu/biostat-m280-2018-winter/hw1/merge-geno.lalala
+ head /home/huiyuhu/biostat-m280-2018-winter/hw1/merge-geno.lalala</code></pre>
+<pre><code>##     2.40  = FILE FORMAT VERSION NUMBER.
+## 8348674  = NUMBER OF SNPS LISTED HERE.
+## 1-54490,1,54490
+## 1-55550,1,55550
+## 1-57033,1,57033
+## 1-57064,1,57064
+## 1-57818,1,57818
+## 1-58432,1,58432
+## 1-58448,1,58448
+## 1-58814,1,58814</code></pre>
 </div>
 
 
