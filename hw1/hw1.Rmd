@@ -112,4 +112,4 @@ runSim <- function(seed, n, dist, rep){
 runSim(200,5000,"gaussian",50)
 ```
  
- 
+ 2. 
