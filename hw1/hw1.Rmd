@@ -54,9 +54,15 @@ head -20 /home/huiyuhu/biostat-m280-2018-winter/hw1/merge-geno.hehehe
 # Part 3 
 1. 
 ```{r}
-  ## parsing command arguments
-  for (arg in commandArgs(TRUE)) {
-    eval(parse(text=arg))
+  
+ args <- commandArgs(TRUE)
+  if (length(args) != 4){
+    quit()
+  } else {
+    ## parsing command arguments
+    for (arg in commandArgs(TRUE)) {
+      eval(parse(text=arg))
+    }
   }
   
   ## check if a given integer is prime
@@ -77,8 +83,6 @@ head -20 /home/huiyuhu/biostat-m280-2018-winter/hw1/merge-geno.hehehe
     return (mean(x[ind]))
   }
   
-  
-runSim <- function(seed, n, dist, rep){
     # step 1: set random seed
     set.seed(seed)
     
@@ -103,13 +107,30 @@ runSim <- function(seed, n, dist, rep){
     sum2 <- sum2 + (emc-0)^2
   }
   
-  result <- paste("MSE (primed-indexed average estimator) =",sum1/rep,  ";  MSE (classical sample average estimator) =", sum2/rep, sep = " ")
-  return(result)
-
-}
-
-#test
-runSim(200,5000,"gaussian",50)
+  result <- paste(sum1/rep, sum2/rep, sep = " ")
+  #return(result)
+  result
 ```
  
- 2. 
+ 2.  
+```{r}
+# autoSim.R
+rep <- 50
+seed <- 280
+distTypes = c("gaussian", "t1", "t5")
+nVals = seq(100, 500, by=100)
+
+for (n in nVals) {
+  for (dist in distTypes) {
+    oFile = paste("n", n, "_", dist, ".txt", sep="")
+    arg = paste("seed=", seed," n=", n," dist=\\\"", dist,"\\\" rep=",rep, sep="")
+    sysCall = paste("nohup Rscript runSim.R ", arg, " > ", oFile)
+    system(sysCall)
+    print(paste("sysCall=", sysCall, sep=""))
+  }
+}
+```
+ 
+ 
+ 
+ 

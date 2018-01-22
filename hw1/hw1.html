@@ -222,6 +222,7 @@ head -20 /home/huiyuhu/biostat-m280-2018-winter/hw1/merge-geno.hehehe</code></pr
 <li></li>
 </ol>
 <pre class="r"><code>  ## parsing command arguments
+  if (length(commandArgs(TRUE)) == 4){
   for (arg in commandArgs(TRUE)) {
     eval(parse(text=arg))
   }
@@ -244,8 +245,6 @@ head -20 /home/huiyuhu/biostat-m280-2018-winter/hw1/merge-geno.hehehe</code></pr
     return (mean(x[ind]))
   }
   
-  
-runSim &lt;- function(seed, n, dist, rep){
     # step 1: set random seed
     set.seed(seed)
     
@@ -270,13 +269,43 @@ runSim &lt;- function(seed, n, dist, rep){
     sum2 &lt;- sum2 + (emc-0)^2
   }
   
-  result &lt;- paste(&quot;MSE (primed-indexed average estimator) =&quot;,sum1/rep,  &quot;;  MSE (classical sample average estimator) =&quot;, sum2/rep, sep = &quot; &quot;)
-  return(result)
+  result &lt;- paste(sum1/rep, sum2/rep, sep = &quot; &quot;)
+  #return(result)
+  result
+  }</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li></li>
+</ol>
+<pre class="r"><code># autoSim.R
+rep &lt;- 50
+seed &lt;- 280
+distTypes = c(&quot;gaussian&quot;, &quot;t1&quot;, &quot;t5&quot;)
+nVals = seq(100, 500, by=100)
 
-}
-
-runSim(200,5000,&quot;gaussian&quot;,50)</code></pre>
-<pre><code>## [1] &quot;MSE (primed-indexed average estimator) = 0.00185493603786513 ;  MSE (classical sample average estimator) = 0.000197309250389023&quot;</code></pre>
+for (n in nVals) {
+  for (dist in distTypes) {
+    oFile = paste(&quot;n&quot;, n, &quot;_&quot;, dist, &quot;.txt&quot;, sep=&quot;&quot;)
+    arg = paste(&quot;seed=&quot;, seed,&quot; n=&quot;, n,&quot; dist=\\\&quot;&quot;, dist,&quot;\\\&quot; rep=&quot;,rep, sep=&quot;&quot;)
+    sysCall = paste(&quot;nohup Rscript runSim.R &quot;, arg, &quot; &gt; &quot;, oFile)
+    system(sysCall)
+    print(paste(&quot;sysCall=&quot;, sysCall, sep=&quot;&quot;))
+  }
+}</code></pre>
+<pre><code>## [1] &quot;sysCall=nohup Rscript runSim.R  seed=280 n=100 dist=\\\&quot;gaussian\\\&quot; rep=50  &gt;  n100_gaussian.txt&quot;
+## [1] &quot;sysCall=nohup Rscript runSim.R  seed=280 n=100 dist=\\\&quot;t1\\\&quot; rep=50  &gt;  n100_t1.txt&quot;
+## [1] &quot;sysCall=nohup Rscript runSim.R  seed=280 n=100 dist=\\\&quot;t5\\\&quot; rep=50  &gt;  n100_t5.txt&quot;
+## [1] &quot;sysCall=nohup Rscript runSim.R  seed=280 n=200 dist=\\\&quot;gaussian\\\&quot; rep=50  &gt;  n200_gaussian.txt&quot;
+## [1] &quot;sysCall=nohup Rscript runSim.R  seed=280 n=200 dist=\\\&quot;t1\\\&quot; rep=50  &gt;  n200_t1.txt&quot;
+## [1] &quot;sysCall=nohup Rscript runSim.R  seed=280 n=200 dist=\\\&quot;t5\\\&quot; rep=50  &gt;  n200_t5.txt&quot;
+## [1] &quot;sysCall=nohup Rscript runSim.R  seed=280 n=300 dist=\\\&quot;gaussian\\\&quot; rep=50  &gt;  n300_gaussian.txt&quot;
+## [1] &quot;sysCall=nohup Rscript runSim.R  seed=280 n=300 dist=\\\&quot;t1\\\&quot; rep=50  &gt;  n300_t1.txt&quot;
+## [1] &quot;sysCall=nohup Rscript runSim.R  seed=280 n=300 dist=\\\&quot;t5\\\&quot; rep=50  &gt;  n300_t5.txt&quot;
+## [1] &quot;sysCall=nohup Rscript runSim.R  seed=280 n=400 dist=\\\&quot;gaussian\\\&quot; rep=50  &gt;  n400_gaussian.txt&quot;
+## [1] &quot;sysCall=nohup Rscript runSim.R  seed=280 n=400 dist=\\\&quot;t1\\\&quot; rep=50  &gt;  n400_t1.txt&quot;
+## [1] &quot;sysCall=nohup Rscript runSim.R  seed=280 n=400 dist=\\\&quot;t5\\\&quot; rep=50  &gt;  n400_t5.txt&quot;
+## [1] &quot;sysCall=nohup Rscript runSim.R  seed=280 n=500 dist=\\\&quot;gaussian\\\&quot; rep=50  &gt;  n500_gaussian.txt&quot;
+## [1] &quot;sysCall=nohup Rscript runSim.R  seed=280 n=500 dist=\\\&quot;t1\\\&quot; rep=50  &gt;  n500_t1.txt&quot;
+## [1] &quot;sysCall=nohup Rscript runSim.R  seed=280 n=500 dist=\\\&quot;t5\\\&quot; rep=50  &gt;  n500_t5.txt&quot;</code></pre>
 </div>
 
 
