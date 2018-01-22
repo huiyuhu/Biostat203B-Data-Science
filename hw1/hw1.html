@@ -221,11 +221,17 @@ head -20 /home/huiyuhu/biostat-m280-2018-winter/hw1/merge-geno.hehehe</code></pr
 <ol style="list-style-type: decimal">
 <li></li>
 </ol>
-<pre class="r"><code>  ## parsing command arguments
-  if (length(commandArgs(TRUE)) == 4){
-  for (arg in commandArgs(TRUE)) {
-    eval(parse(text=arg))
-  }
+<pre class="r"><code>  # These assignments will be removed later
+  rep &lt;- 50
+  seed &lt;- 280
+  n &lt;- 100
+  dist &lt;- 't1'
+
+    ## parsing command arguments
+    for (arg in commandArgs(TRUE)) {
+      eval(parse(text=arg))
+    }
+  
   
   ## check if a given integer is prime
   isPrime = function(n) {
@@ -271,8 +277,8 @@ head -20 /home/huiyuhu/biostat-m280-2018-winter/hw1/merge-geno.hehehe</code></pr
   
   result &lt;- paste(sum1/rep, sum2/rep, sep = &quot; &quot;)
   #return(result)
-  result
-  }</code></pre>
+  result</code></pre>
+<pre><code>## [1] &quot;2808.42566728365 230.237205563387&quot;</code></pre>
 <ol start="2" style="list-style-type: decimal">
 <li></li>
 </ol>
@@ -306,6 +312,126 @@ for (n in nVals) {
 ## [1] &quot;sysCall=nohup Rscript runSim.R  seed=280 n=500 dist=\\\&quot;gaussian\\\&quot; rep=50  &gt;  n500_gaussian.txt&quot;
 ## [1] &quot;sysCall=nohup Rscript runSim.R  seed=280 n=500 dist=\\\&quot;t1\\\&quot; rep=50  &gt;  n500_t1.txt&quot;
 ## [1] &quot;sysCall=nohup Rscript runSim.R  seed=280 n=500 dist=\\\&quot;t5\\\&quot; rep=50  &gt;  n500_t5.txt&quot;</code></pre>
+<ol start="3" style="list-style-type: decimal">
+<li>Summary</li>
+</ol>
+<pre class="r"><code>ns &lt;- c()
+methods &lt;- c()
+for (n in seq(100, 500, by=100)){
+  ns &lt;- append(ns, c(n, &quot;&quot;))
+  methods &lt;- append(methods, c(&quot;PrimeAvg&quot;, &quot;SampAvg&quot;))
+}
+
+table &lt;- data.frame(
+  n = ns,
+  method = methods,
+  t_1 = NA, t_5 = NA, Gaussian = NA
+           )
+
+#loop to write in data
+distTypes = c(&quot;t1&quot;, &quot;t5&quot;,&quot;gaussian&quot;)
+nVals = seq(100, 500, by=100)
+i &lt;- 0
+j &lt;- 0
+for (n in nVals) {
+  i &lt;- i + 1
+  j &lt;- 0
+  for (dist in distTypes) {
+    j &lt;- j + 1
+    iFile = paste(&quot;n&quot;, n, &quot;_&quot;, dist, &quot;.txt&quot;, sep=&quot;&quot;)
+    a &lt;- read.table(iFile)
+    a &lt;- as.data.frame(a)
+    table[2*i-1, j + 2] &lt;- a[1,2]
+    table[2*i, j + 2] &lt;- a[1,3]
+  }
+}
+
+#table
+library(knitr)
+kable(table, &quot;markdown&quot;)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">n</th>
+<th align="left">method</th>
+<th align="right">t_1</th>
+<th align="right">t_5</th>
+<th align="right">Gaussian</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">100</td>
+<td align="left">PrimeAvg</td>
+<td align="right">2808.42570</td>
+<td align="right">0.0664284</td>
+<td align="right">0.0414674</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">SampAvg</td>
+<td align="right">230.23720</td>
+<td align="right">0.0167508</td>
+<td align="right">0.0094834</td>
+</tr>
+<tr class="odd">
+<td align="left">200</td>
+<td align="left">PrimeAvg</td>
+<td align="right">799.31393</td>
+<td align="right">0.0418479</td>
+<td align="right">0.0187544</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">SampAvg</td>
+<td align="right">95.87976</td>
+<td align="right">0.0076665</td>
+<td align="right">0.0071637</td>
+</tr>
+<tr class="odd">
+<td align="left">300</td>
+<td align="left">PrimeAvg</td>
+<td align="right">446.40235</td>
+<td align="right">0.0241224</td>
+<td align="right">0.0200254</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">SampAvg</td>
+<td align="right">53.57742</td>
+<td align="right">0.0054711</td>
+<td align="right">0.0035344</td>
+</tr>
+<tr class="odd">
+<td align="left">400</td>
+<td align="left">PrimeAvg</td>
+<td align="right">19.45133</td>
+<td align="right">0.0243314</td>
+<td align="right">0.0112689</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">SampAvg</td>
+<td align="right">20.53370</td>
+<td align="right">0.0035170</td>
+<td align="right">0.0029707</td>
+</tr>
+<tr class="odd">
+<td align="left">500</td>
+<td align="left">PrimeAvg</td>
+<td align="right">217.26890</td>
+<td align="right">0.0116763</td>
+<td align="right">0.0111769</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">SampAvg</td>
+<td align="right">20.78780</td>
+<td align="right">0.0033550</td>
+<td align="right">0.0025920</td>
+</tr>
+</tbody>
+</table>
 </div>
 
 

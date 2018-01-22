@@ -54,16 +54,17 @@ head -20 /home/huiyuhu/biostat-m280-2018-winter/hw1/merge-geno.hehehe
 # Part 3 
 1. 
 ```{r}
-  
- args <- commandArgs(TRUE)
-  if (length(args) != 4){
-    quit()
-  } else {
+  # These assignments will be removed later
+  rep <- 50
+  seed <- 280
+  n <- 100
+  dist <- 't1'
+
     ## parsing command arguments
     for (arg in commandArgs(TRUE)) {
       eval(parse(text=arg))
     }
-  }
+  
   
   ## check if a given integer is prime
   isPrime = function(n) {
@@ -131,6 +132,47 @@ for (n in nVals) {
 }
 ```
  
+ 3.  Summary
+```{r}
+ns <- c()
+methods <- c()
+for (n in seq(100, 500, by=100)){
+  ns <- append(ns, c(n, ""))
+  methods <- append(methods, c("PrimeAvg", "SampAvg"))
+}
+
+table <- data.frame(
+  n = ns,
+  method = methods,
+  t_1 = NA, t_5 = NA, Gaussian = NA
+           )
+
+#loop to write in data
+distTypes = c("t1", "t5","gaussian")
+nVals = seq(100, 500, by=100)
+i <- 0
+j <- 0
+for (n in nVals) {
+  i <- i + 1
+  j <- 0
+  for (dist in distTypes) {
+    j <- j + 1
+    iFile = paste("n", n, "_", dist, ".txt", sep="")
+    a <- read.table(iFile)
+    a <- as.data.frame(a)
+    table[2*i-1, j + 2] <- a[1,2]
+    table[2*i, j + 2] <- a[1,3]
+  }
+}
+
+#table
+library(knitr)
+kable(table, "markdown")
+```
+
+
+
+
  
  
  
