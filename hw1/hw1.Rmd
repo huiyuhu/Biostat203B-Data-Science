@@ -145,90 +145,20 @@ $$
 for both methods.
 
   * $Code:$
-```{r}
-  # These assignments will be removed later
-  rep <- 50
-  seed <- 280
-  n <- 100
-  dist <- 't1'
-
-    ## parsing command arguments
-    for (arg in commandArgs(TRUE)) {
-      eval(parse(text=arg))
-    }
-  
-  
-  ## check if a given integer is prime
-  isPrime = function(n) {
-    if (n <= 3) {
-      return (TRUE)
-    }
-    if (any((n %% 2:floor(sqrt(n))) == 0)) {
-      return (FALSE)
-    }
-    return (TRUE)
-  }
-  
-  ## estimate mean only using observation with prime indices
-  estMeanPrimes = function (x) {
-    n = length(x)
-    ind = sapply(1:n, isPrime)
-    return (mean(x[ind]))
-  }
-  
-    # step 1: set random seed
-    set.seed(seed)
-    
-  sum1 <- 0
-  sum2 <- 0
-  for ( i in 1:rep) {
-    # step 2: generate data according to argument dist
-    if (dist == "gaussian"){
-      x = rnorm(n,0,1)
-    }
-    else if (dist == "t1"){
-      x = rt(n, df=1)
-    }
-    else if (dist == "t5"){
-      x = rt(n, df=5)
-    }
-    
-    # estimate mean
-    emp <- estMeanPrimes(x)
-    emc <- mean(x)
-    sum1 <- sum1 + (emp - 0)^2
-    sum2 <- sum2 + (emc - 0)^2
-  }
-  
-  result <- paste(round(sum1/rep, 4), round(sum2/rep, 4), sep = " ")
-  #return(result)
-  result
+```{bash}
+Rscript runSim.R seed=280 n=100 dist=\"t1\" rep=50
 ```
+  
   * Answer: When rep = 50 seed = 280 n = 100 dist = 't1', $MSE(Primes) = 2808.4257$ and $MSE(Classic) = 230.2372$.
 
 
 2. Modify the [`autoSim.R`](http://hua-zhou.github.io/teaching/biostatm280-2018winter/slides/02-linux/autoSim.R) script to run simulations with combinations of sample sizes `nVals = seq(100, 500, by=100)` and distributions `distTypes = c("gaussian", "t1", "t5")` and write output to appropriately named files. Use `rep = 50`, and `seed = 280`. 
 
   * $Code:$
-```{r}
-# autoSim.R
-rep <- 50
-seed <- 280
-distTypes = c("gaussian", "t1", "t5")
-nVals = seq(100, 500, by=100)
-
-#Write in value in files.
-for (n in nVals) {
-  for (dist in distTypes) {
-    oFile = paste("n", n, "_", dist, ".txt", sep="")
-    arg = paste("seed=", seed," n=", n," dist=\\\"", dist,"\\\" rep=",rep,
-                sep="")
-    sysCall = paste("nohup Rscript runSim.R ", arg, " > ", oFile)
-    system(sysCall)
-    print(paste("sysCall=", sysCall, sep=""))
-  }
-}
+```{bash}
+Rscript autoSim.R
 ```
+
   
 
 
