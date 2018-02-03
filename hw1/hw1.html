@@ -290,7 +290,8 @@ awk 'END { print NR }' /home/m280-data/hw1/merge-geno.bim</code></pre>
 <ul>
 <li><span class="math inline">\(Code:\)</span></li>
 </ul>
-<pre class="bash"><code>awk '{if ($1 == 3 &amp;&amp; $4 &gt;= 47892180 &amp;&amp; $4 &lt;= 48130769) print}' /home/m280-data/hw1/merge-geno.bim | wc -l</code></pre>
+<pre class="bash"><code>awk '{if ($1 == 3 &amp;&amp; $4 &gt;= 47892180 &amp;&amp;
+$4 &lt;= 48130769) print}' /home/m280-data/hw1/merge-geno.bim | wc -l</code></pre>
 <pre><code>## 894</code></pre>
 <ul>
 <li>Answer: There are <span class="math inline">\(894\)</span> SNPs located with in MAP4 gene.</li>
@@ -329,7 +330,12 @@ with each field separated by a comma. Write a Linux shell command to convert `me
 <li>Comments: 1, change seperator to “,”; 2, strip the string T2DG from the IDs; 3, convert sex from number to char; 4, remove missing value.</li>
 <li><span class="math inline">\(Code:\)</span></li>
 </ul>
-<pre class="bash"><code>awk '{OFS = &quot;,&quot;} {print $1, $2, $3, $4, $5, $6}' /home/m280-data/hw1/merge-geno.fam | sed 's/T2DG//g' | awk -F, -v sex=&quot;&quot; '{OFS = &quot;,&quot;} {if ($5 == 1) sex = &quot;M&quot;; else sex = &quot;F&quot;} {print $1,$2,$3,$4, sex,$6}' | awk -F, '{OFS=&quot;,&quot;} { for (i = 1; i &lt;= NF; i++) {$i = ($i == 0 ? &quot;&quot; : $i)}; print }'  &gt; /home/huiyuhu/biostat-m280-2018-winter/hw1/mendel_ped.txt
+<pre class="bash"><code>awk '{OFS = &quot;,&quot;} {print $1, $2, $3, $4, $5, $6}
+' /home/m280-data/hw1/merge-geno.fam | sed 's/T2DG//g' | awk -F, -v sex=&quot;
+&quot; '{OFS = &quot;,&quot;} {if ($5 == 1) sex = &quot;M&quot;; else sex = &quot;F&quot;} {print $1, $2, $3, $4,
+sex,$6}' | awk -F, '{OFS=&quot;,&quot;} { for (i = 1; i &lt;= NF; i++) {
+$i = ($i == 0 ? &quot;&quot; : $i)}; print }
+'  &gt; /home/huiyuhu/biostat-m280-2018-winter/hw1/mendel_ped.txt
 head -20 /home/huiyuhu/biostat-m280-2018-winter/hw1/mendel_ped.txt</code></pre>
 <pre><code>## 2,0200001,,,M,
 ## 2,0200002,,,F,
@@ -413,8 +419,8 @@ head -20 /home/huiyuhu/biostat-m280-2018-winter/hw1/mendel_ped.txt</code></pre>
     # estimate mean
     emp &lt;- estMeanPrimes(x)
     emc &lt;- mean(x)
-    sum1 &lt;- sum1 + (emp-0)^2
-    sum2 &lt;- sum2 + (emc-0)^2
+    sum1 &lt;- sum1 + (emp - 0)^2
+    sum2 &lt;- sum2 + (emc - 0)^2
   }
   
   result &lt;- paste(round(sum1/rep, 4), round(sum2/rep, 4), sep = &quot; &quot;)
@@ -440,7 +446,8 @@ nVals = seq(100, 500, by=100)
 for (n in nVals) {
   for (dist in distTypes) {
     oFile = paste(&quot;n&quot;, n, &quot;_&quot;, dist, &quot;.txt&quot;, sep=&quot;&quot;)
-    arg = paste(&quot;seed=&quot;, seed,&quot; n=&quot;, n,&quot; dist=\\\&quot;&quot;, dist,&quot;\\\&quot; rep=&quot;,rep, sep=&quot;&quot;)
+    arg = paste(&quot;seed=&quot;, seed,&quot; n=&quot;, n,&quot; dist=\\\&quot;&quot;, dist,&quot;\\\&quot; rep=&quot;,rep,
+                sep=&quot;&quot;)
     sysCall = paste(&quot;nohup Rscript runSim.R &quot;, arg, &quot; &gt; &quot;, oFile)
     system(sysCall)
     print(paste(&quot;sysCall=&quot;, sysCall, sep=&quot;&quot;))
