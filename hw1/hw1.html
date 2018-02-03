@@ -129,7 +129,6 @@ $(document).ready(function () {
 <ol style="list-style-type: decimal">
 <li>Apply for the <a href="https://education.github.com/pack">Student Developer Pack</a> at GitHub using your UCLA email.</li>
 </ol>
-<<<<<<< HEAD
 <ul>
 <li>Done. GitHub username: huiyuhu</li>
 </ul>
@@ -149,27 +148,6 @@ $(document).ready(function () {
 <li>After each homework due date, teaching assistant and instructor will check out your master branch for grading. Tag each of your homework submissions with tag names <code>hw1</code>, <code>hw2</code>, … Tagging time will be used as your submission time. That means if you tag your <code>hw1</code> submission after deadline, penalty points will be deducted for late submission.</li>
 </ol>
 <ul>
-=======
-<ul>
-<li>Done. GitHub username: huiyuhu</li>
-</ul>
-<ol start="2" style="list-style-type: decimal">
-<li>Create a <strong>private</strong> repository <code>biostat-m280-2018-winter</code> and add <code>Hua-Zhou</code> and <code>juhkim111</code> as your collaborators with write permission.</li>
-</ol>
-<ul>
-<li>Done.</li>
-</ul>
-<ol start="3" style="list-style-type: decimal">
-<li>Top directories of the repository should be <code>hw1</code>, <code>hw2</code>, … Maintain two branches <code>master</code> and <code>develop</code>. The <code>develop</code> branch will be your main playground, the place where you develop solution (code) to homework problems and write up report. The <code>master</code> branch will be your presentation area. Submit your homework files (R markdown file <code>Rmd</code>, <code>html</code> file converted from R markdown, all code and data sets to reproduce results) in <code>master</code> branch.</li>
-</ol>
-<ul>
-<li>Done.</li>
-</ul>
-<ol start="4" style="list-style-type: decimal">
-<li>After each homework due date, teaching assistant and instructor will check out your master branch for grading. Tag each of your homework submissions with tag names <code>hw1</code>, <code>hw2</code>, … Tagging time will be used as your submission time. That means if you tag your <code>hw1</code> submission after deadline, penalty points will be deducted for late submission.</li>
-</ol>
-<ul>
->>>>>>> develop
 <li>Done.</li>
 </ul>
 </div>
@@ -222,11 +200,7 @@ $(document).ready(function () {
 <li>How many persons are in the data set (statisticians call this <code>n</code>)? How many SNPs are in the data set (statisticians call this <code>p</code>)?</li>
 </ol>
 <ul>
-<<<<<<< HEAD
-<li>Code:</li>
-=======
 <li><span class="math inline">\(Code:\)</span></li>
->>>>>>> develop
 </ul>
 <pre class="bash"><code>awk 'END { print NR }' /home/m280-data/hw1/merge-geno.fam
 awk 'END { print NR }' /home/m280-data/hw1/merge-geno.bim</code></pre>
@@ -238,13 +212,9 @@ awk 'END { print NR }' /home/m280-data/hw1/merge-geno.bim</code></pre>
 <ol start="2" style="list-style-type: decimal">
 <li>Which chromosomes does this data set contain? How many SNPs are in each chromosome?</li>
 </ol>
-<<<<<<< HEAD
-<p>*Code:</p>
-=======
 <ul>
 <li><span class="math inline">\(Code:\)</span></li>
 </ul>
->>>>>>> develop
 <pre class="bash"><code> awk &lt; /home/m280-data/hw1/merge-geno.bim '{print $1}' | uniq -c</code></pre>
 <pre><code>## 1309299 1
 ## 1215399 3
@@ -336,11 +306,7 @@ with each field separated by a comma. Write a Linux shell command to convert <co
 </ol>
 <ul>
 <li>Reformat for .bim file:</li>
-<<<<<<< HEAD
-<li>Code:</li>
-=======
 <li><span class="math inline">\(Code:\)</span></li>
->>>>>>> develop
 </ul>
 <pre class="bash"><code> echo &quot;    2.40  = FILE FORMAT VERSION NUMBER.&quot; &gt; /home/huiyuhu/biostat-m280-2018-winter/hw1/mendel_snpdef.txt
  echo '8348674  = NUMBER OF SNPS LISTED HERE.' &gt;&gt; /home/huiyuhu/biostat-m280-2018-winter/hw1/mendel_snpdef.txt
@@ -362,11 +328,6 @@ with each field separated by a comma. Write a Linux shell command to convert `me
 <ul>
 <li>Reformat for .fam file:</li>
 <li>Comments: 1, change seperator to “,”; 2, strip the string T2DG from the IDs; 3, convert sex from number to char; 4, remove missing value.</li>
-<<<<<<< HEAD
-<li>Code:</li>
-</ul>
-<pre class="bash"><code>awk '{OFS = &quot;,&quot;} {print $1, $2, $3, $4, $5, $6}' /home/m280-data/hw1/merge-geno.fam | sed 's/T2DG//g' | awk -F, -v sex=&quot;&quot; '{OFS = &quot;,&quot;} {if ($5 == 1) sex = &quot;M&quot;; else sex = &quot;F&quot;} {print $1,$2,$3,$4, sex,$6}' | awk -F, '{OFS=&quot;,&quot;} { for (i = 1; i &lt;= NF; i++) {$i = ($i == 0 ? &quot;&quot; : $i)}; print }'  &gt; /home/huiyuhu/biostat-m280-2018-winter/hw1/mendel_ped.txt
-=======
 <li><span class="math inline">\(Code:\)</span></li>
 </ul>
 <pre class="bash"><code>awk '{OFS = &quot;,&quot;} {print $1, $2, $3, $4, $5, $6}
@@ -375,7 +336,6 @@ with each field separated by a comma. Write a Linux shell command to convert `me
 sex,$6}' | awk -F, '{OFS=&quot;,&quot;} { for (i = 1; i &lt;= NF; i++) {
 $i = ($i == 0 ? &quot;&quot; : $i)}; print }
 '  &gt; /home/huiyuhu/biostat-m280-2018-winter/hw1/mendel_ped.txt
->>>>>>> develop
 head -20 /home/huiyuhu/biostat-m280-2018-winter/hw1/mendel_ped.txt</code></pre>
 <pre><code>## 2,0200001,,,M,
 ## 2,0200002,,,F,
@@ -409,69 +369,8 @@ head -20 /home/huiyuhu/biostat-m280-2018-winter/hw1/mendel_ped.txt</code></pre>
 <ul>
 <li><span class="math inline">\(Code:\)</span></li>
 </ul>
-<<<<<<< HEAD
-<pre class="r"><code>  # These assignments will be removed later
-  rep &lt;- 50
-  seed &lt;- 280
-  n &lt;- 100
-  dist &lt;- 't1'
-
-    ## parsing command arguments
-    for (arg in commandArgs(TRUE)) {
-      eval(parse(text=arg))
-    }
-  
-  
-  ## check if a given integer is prime
-  isPrime = function(n) {
-    if (n &lt;= 3) {
-      return (TRUE)
-    }
-    if (any((n %% 2:floor(sqrt(n))) == 0)) {
-      return (FALSE)
-    }
-    return (TRUE)
-  }
-  
-  ## estimate mean only using observation with prime indices
-  estMeanPrimes = function (x) {
-    n = length(x)
-    ind = sapply(1:n, isPrime)
-    return (mean(x[ind]))
-  }
-  
-    # step 1: set random seed
-    set.seed(seed)
-    
-  sum1 &lt;- 0
-  sum2 &lt;- 0
-  for ( i in 1:rep) {
-    # step 2: generate data according to argument dist
-    if (dist == &quot;gaussian&quot;){
-      x = rnorm(n,0,1)
-    }
-    else if (dist == &quot;t1&quot;){
-      x = rt(n, df=1)
-    }
-    else if (dist == &quot;t5&quot;){
-      x = rt(n, df=5)
-    }
-    
-    # estimate mean
-    emp &lt;- estMeanPrimes(x)
-    emc &lt;- mean(x)
-    sum1 &lt;- sum1 + (emp-0)^2
-    sum2 &lt;- sum2 + (emc-0)^2
-  }
-  
-  result &lt;- paste(round(sum1/rep, 4), round(sum2/rep, 4), sep = &quot; &quot;)
-  #return(result)
-  result</code></pre>
-<pre><code>## [1] &quot;2808.4257 230.2372&quot;</code></pre>
-=======
 <pre class="bash"><code>Rscript runSim.R seed=280 n=100 dist=\&quot;t1\&quot; rep=50</code></pre>
 <pre><code>## [1] 2808.4257  230.2372</code></pre>
->>>>>>> develop
 <ul>
 <li>Answer: When rep = 50 seed = 280 n = 100 dist = ‘t1’, <span class="math inline">\(MSE(Primes) = 2808.4257\)</span> and <span class="math inline">\(MSE(Classic) = 230.2372\)</span>.</li>
 </ul>
@@ -481,26 +380,7 @@ head -20 /home/huiyuhu/biostat-m280-2018-winter/hw1/mendel_ped.txt</code></pre>
 <ul>
 <li><span class="math inline">\(Code:\)</span></li>
 </ul>
-<<<<<<< HEAD
-<pre class="r"><code># autoSim.R
-rep &lt;- 50
-seed &lt;- 280
-distTypes = c(&quot;gaussian&quot;, &quot;t1&quot;, &quot;t5&quot;)
-nVals = seq(100, 500, by=100)
-
-#Write in value in files.
-for (n in nVals) {
-  for (dist in distTypes) {
-    oFile = paste(&quot;n&quot;, n, &quot;_&quot;, dist, &quot;.txt&quot;, sep=&quot;&quot;)
-    arg = paste(&quot;seed=&quot;, seed,&quot; n=&quot;, n,&quot; dist=\\\&quot;&quot;, dist,&quot;\\\&quot; rep=&quot;,rep, sep=&quot;&quot;)
-    sysCall = paste(&quot;nohup Rscript runSim.R &quot;, arg, &quot; &gt; &quot;, oFile)
-    system(sysCall)
-    print(paste(&quot;sysCall=&quot;, sysCall, sep=&quot;&quot;))
-  }
-}</code></pre>
-=======
 <pre class="bash"><code>Rscript autoSim.R</code></pre>
->>>>>>> develop
 <pre><code>## [1] &quot;sysCall=nohup Rscript runSim.R  seed=280 n=100 dist=\\\&quot;gaussian\\\&quot; rep=50  &gt;  n100_gaussian.txt&quot;
 ## [1] &quot;sysCall=nohup Rscript runSim.R  seed=280 n=100 dist=\\\&quot;t1\\\&quot; rep=50  &gt;  n100_t1.txt&quot;
 ## [1] &quot;sysCall=nohup Rscript runSim.R  seed=280 n=100 dist=\\\&quot;t5\\\&quot; rep=50  &gt;  n100_t5.txt&quot;
