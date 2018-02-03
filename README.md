@@ -2,4 +2,4 @@
 
 > For class Biostat M280 (Student Name: Huiyu Hu)
 ## Homework
-* HW 1
+* HW 1:   [HW1 PDF version](https://github.com/huiyuhu/biostat-m280-2018-winter/blob/master/hw1/hw1%20.pdf)
