@@ -19,13 +19,19 @@ Read [Chapter 23](http://r4ds.had.co.nz/model-basics.html) (Model Basics) and [C
 ## Q3
 
 Redo HW1 Q2 using tidyverse.
-### read in data
+* Read in data
 ```{r}
 library("tidyverse")
-geno_data1 <- read_table("/home/m280-data/hw1/merge-geno.bim")
-geno_data2 <- read_table("/home/m280-data/hw1/merge-geno.fam")
+geno_data1 <- read_tsv("/home/m280-data/hw1/merge-geno.bim", col_names = F) 
+geno_data1 <- as_data_frame(geno_data1)
+colnames(geno_data1) <- c("Chromosome","SNP_ID","Genetic_Distance","bp",
+                       "Allele 1","Allele 2")
+geno_data2 <- read_delim("/home/m280-data/hw1/merge-geno.fam"," ", col_names = F)
+geno_data2 <- as_data_frame(geno_data2)
+colnames(geno_data2) <- c("Family","Person","Father","Mother",
+                       "Sex","Affection")
 ```
-1. 
+1. How many persons are in the data set (statisticians call this n)? How many SNPs are in the data set (statisticians call this p)?
 
 ```{r}
 geno_data1 %>% 
@@ -35,8 +41,15 @@ geno_data2 %>%
 ```
 * Answer: n = $959$ ; p = $8348674$. 
 
-2. 
+2. Which chromosomes does this data set contain? How many SNPs are in each chromosome?
 
+```{r}
+geno_data1 %>% 
+  group_by(Chromosome) %>% 
+  summarise(n = n()) 
+```
+
+3. MAP4 (microtubule-associated protein 4) is a gene on chromosome 3 spanning positions 47,892,180 bp – 48,130,769 bp. How many SNPs are located within MAP4 gene?
 
 
 ## Q4 (optional)

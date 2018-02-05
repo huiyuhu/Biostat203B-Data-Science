@@ -133,7 +133,7 @@ $(document).ready(function () {
 </div>
 <div id="q3" class="section level2">
 <h2>Q3</h2>
-<p>Redo HW1 Q2 using tidyverse. ### read in data</p>
+<p>Redo HW1 Q2 using tidyverse. * Read in data</p>
 <pre class="r"><code>library(&quot;tidyverse&quot;)</code></pre>
 <pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
 <pre><code>## ✔ ggplot2 2.2.1     ✔ purrr   0.2.4
@@ -143,34 +143,73 @@ $(document).ready(function () {
 <pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()</code></pre>
-<pre class="r"><code>geno_data1 &lt;- read_table(&quot;/home/m280-data/hw1/merge-geno.bim&quot;)</code></pre>
+<pre class="r"><code>geno_data1 &lt;- read_tsv(&quot;/home/m280-data/hw1/merge-geno.bim&quot;, col_names = F) </code></pre>
 <pre><code>## Parsed with column specification:
 ## cols(
-##   `1 1-54490 0   54490   A   G` = col_character()
+##   X1 = col_integer(),
+##   X2 = col_character(),
+##   X3 = col_integer(),
+##   X4 = col_integer(),
+##   X5 = col_character(),
+##   X6 = col_character()
 ## )</code></pre>
-<pre class="r"><code>geno_data2 &lt;- read_table(&quot;/home/m280-data/hw1/merge-geno.fam&quot;)</code></pre>
+<pre class="r"><code>geno_data1 &lt;- as_data_frame(geno_data1)
+colnames(geno_data1) &lt;- c(&quot;Chromosome&quot;,&quot;SNP_ID&quot;,&quot;Genetic_Distance&quot;,&quot;bp&quot;,
+                       &quot;Allele 1&quot;,&quot;Allele 2&quot;)
+geno_data2 &lt;- read_delim(&quot;/home/m280-data/hw1/merge-geno.fam&quot;,&quot; &quot;, col_names = F)</code></pre>
 <pre><code>## Parsed with column specification:
 ## cols(
-##   `2 T2DG0200001 0 0 1 0` = col_character()
+##   X1 = col_integer(),
+##   X2 = col_character(),
+##   X3 = col_character(),
+##   X4 = col_character(),
+##   X5 = col_integer(),
+##   X6 = col_integer()
 ## )</code></pre>
+<pre class="r"><code>geno_data2 &lt;- as_data_frame(geno_data2)
+colnames(geno_data2) &lt;- c(&quot;Family&quot;,&quot;Person&quot;,&quot;Father&quot;,&quot;Mother&quot;,
+                       &quot;Sex&quot;,&quot;Affection&quot;)</code></pre>
 <ol style="list-style-type: decimal">
-<li></li>
+<li>How many persons are in the data set (statisticians call this n)? How many SNPs are in the data set (statisticians call this p)?</li>
 </ol>
 <pre class="r"><code>geno_data1 %&gt;% 
   count()</code></pre>
 <pre><code>## # A tibble: 1 x 1
 ##         n
 ##     &lt;int&gt;
-## 1 8348673</code></pre>
+## 1 8348674</code></pre>
 <pre class="r"><code>geno_data2 %&gt;% 
   count()</code></pre>
 <pre><code>## # A tibble: 1 x 1
 ##       n
 ##   &lt;int&gt;
-## 1   958</code></pre>
+## 1   959</code></pre>
 <ul>
-<li>Answer:</li>
+<li>Answer: n = <span class="math inline">\(959\)</span> ; p = <span class="math inline">\(8348674\)</span>.</li>
 </ul>
+<ol start="2" style="list-style-type: decimal">
+<li>Which chromosomes does this data set contain? How many SNPs are in each chromosome?</li>
+</ol>
+<pre class="r"><code>geno_data1 %&gt;% 
+  group_by(Chromosome) %&gt;% 
+  summarise(n = n()) </code></pre>
+<pre><code>## # A tibble: 11 x 2
+##    Chromosome       n
+##         &lt;int&gt;   &lt;int&gt;
+##  1          1 1309299
+##  2          3 1215399
+##  3          5 1090185
+##  4          7  980944
+##  5          9  732013
+##  6         11  815860
+##  7         13  602809
+##  8         15  491208
+##  9         17  477990
+## 10         19  393615
+## 11         21  239352</code></pre>
+<ol start="3" style="list-style-type: decimal">
+<li>MAP4 (microtubule-associated protein 4) is a gene on chromosome 3 spanning positions 47,892,180 bp – 48,130,769 bp. How many SNPs are located within MAP4 gene?</li>
+</ol>
 </div>
 <div id="q4-optional" class="section level2">
 <h2>Q4 (optional)</h2>
