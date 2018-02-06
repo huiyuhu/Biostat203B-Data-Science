@@ -135,12 +135,12 @@ $(document).ready(function () {
 <h2>Q3</h2>
 <p>Redo HW1 Q2 using tidyverse. * Read in data</p>
 <pre class="r"><code>library(&quot;tidyverse&quot;)</code></pre>
-<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
+<pre><code>## ── Attaching packages ────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
 <pre><code>## ✔ ggplot2 2.2.1     ✔ purrr   0.2.4
 ## ✔ tibble  1.4.2     ✔ dplyr   0.7.4
 ## ✔ tidyr   0.8.0     ✔ stringr 1.2.0
 ## ✔ readr   1.1.1     ✔ forcats 0.2.0</code></pre>
-<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+<pre><code>## ── Conflicts ───────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()</code></pre>
 <pre class="r"><code>geno_data1 &lt;- read_tsv(&quot;/home/m280-data/hw1/merge-geno.bim&quot;, col_names = F) </code></pre>
@@ -210,6 +210,21 @@ colnames(geno_data2) &lt;- c(&quot;Family&quot;,&quot;Person&quot;,&quot;Father&
 <ol start="3" style="list-style-type: decimal">
 <li>MAP4 (microtubule-associated protein 4) is a gene on chromosome 3 spanning positions 47,892,180 bp – 48,130,769 bp. How many SNPs are located within MAP4 gene?</li>
 </ol>
+<pre class="r"><code>filter(geno_data1, Chromosome == 3, bp &gt;= 47892180, bp &lt;= 48130769 ) %&gt;% 
+  summarise(n = n()) </code></pre>
+<pre><code>## # A tibble: 1 x 1
+##       n
+##   &lt;int&gt;
+## 1   894</code></pre>
+<ul>
+<li>There are 894 SNPs located within MAP4 gene.</li>
+</ul>
+<ol start="4" style="list-style-type: decimal">
+<li>Reformat:</li>
+</ol>
+<ul>
+<li></li>
+</ul>
 </div>
 <div id="q4-optional" class="section level2">
 <h2>Q4 (optional)</h2>
