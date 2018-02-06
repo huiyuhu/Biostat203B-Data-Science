@@ -11,6 +11,50 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Q1
 
 Read [Chapter 7](http://r4ds.had.co.nz/exploratory-data-analysis.html) (Exploratory Data Analysis) of _R for Data Science_ and do exercises 7.3.4, 7.4.1, 7.5.1.1, 7.5.2.1, and 7.5.3.1.
+#### exercises 7.3.4
+1.Explore the distribution of each of the x, y, and z variables in diamonds. What do you learn? Think about a diamond and how you might decide which dimension is the length, width, and depth.
+```{r}
+library("tidyverse")
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = x))
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = y))
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = z))
+```
+
+2. Explore the distribution of price. Do you discover anything unusual or surprising? (Hint: Carefully think about the binwidth and make sure you try a wide range of values.)
+
+```{r}
+ggplot(diamonds) + 
+  geom_histogram(mapping = aes(x = price), binwidth = 40)
+```
+
+3. How many diamonds are 0.99 carat? How many are 1 carat? What do you think is the cause of the difference?
+```{r}
+filter(diamonds, carat == 0.99) %>%
+  summarise(n())
+```
+```{r}
+filter(diamonds, carat == 1) %>%
+  summarise(n())
+```
+4. Compare and contrast coord_cartesian() vs xlim() or ylim() when zooming in on a histogram. What happens if you leave binwidth unset? What happens if you try and zoom so only half a bar shows?
+
+```{r}
+ggplot(diamonds) + 
+  geom_histogram(mapping = aes(x = y),binwidth = 0.5) +
+  coord_cartesian(ylim = c(0, 100))
+# What happens if you leave binwidth unset?
+ggplot(diamonds) + 
+  geom_histogram(mapping = aes(x = y)) +
+  coord_cartesian(ylim = c(0, 100))
+# What happens if you try and zoom so only half a bar shows?
+
+```
+
+#### exercises 7.4.1
+
 
 ## Q2 (optional)
 
@@ -63,7 +107,6 @@ geno_data1 %>%
 |     17       | 477990 |
 |     19       | 393615 |
 |     21       | 239352 |
-
 
 
 3. MAP4 (microtubule-associated protein 4) is a gene on chromosome 3 spanning positions 47,892,180 bp – 48,130,769 bp. How many SNPs are located within MAP4 gene?
