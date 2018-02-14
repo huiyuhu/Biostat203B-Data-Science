@@ -54,6 +54,37 @@ ggplot(diamonds) +
 ```
 
 #### exercises 7.4.1
+1. What happens to missing values in a histogram? What happens to missing values in a bar chart? Why is there a difference?
+```{r}
+diamonds %>%
+  ggplot(aes(price)) +
+  geom_histogram(bins = 500)
+
+diamonds %>%
+  ggplot(aes(price)) +
+  geom_bar()
+```
+* Answer: 
+
+2. What does na.rm = TRUE do in mean() and sum()?
+* Answer: 
+
+#### 7.5.1.1
+1. Use what you’ve learned to improve the visualisation of the departure times of cancelled vs. non-cancelled flights.
+```{r}
+install.packages("nycflights13")
+library("nycflights13")
+nycflights13::flights %>% 
+  mutate(
+    cancelled = is.na(dep_time),
+    sched_hour = sched_dep_time %/% 100,
+    sched_min = sched_dep_time %% 100,
+    sched_dep_time = sched_hour + sched_min / 60
+  ) %>% 
+  ggplot(mapping = aes(sched_dep_time)) + 
+    geom_freqpoly(mapping = aes(colour = cancelled), binwidth = 1/4)
+```
+
 
 
 ## Q2 (optional)
@@ -117,6 +148,17 @@ filter(geno_data1, Chromosome == 3, bp >= 47892180, bp <= 48130769 ) %>%
 * Answer: There are 894 SNPs located within MAP4 gene.
 
 4. Reformat:
+```{r}
+output_file <- "/home/huiyuhu/biostat-m280-2018-winter/hw2/mendel1.txt"
+fileConn <- file(output_file, open = "a")
+writeLines("    2.40 = FILE FORMAT VERSION NUMBER", fileConn)
+writeLines("8348674 = NUMBER OF SNPS LISTED HERE", fileConn)
+close(fileConn)
+
+mendel <- geno_data1[, c("SNP_ID", "Chromosome","bp")]
+write_delim(mendel, output_file, delim = ",", col_names = FALSE, append = TRUE)
+```
+
 * 
 
 ## Q4 (optional)
