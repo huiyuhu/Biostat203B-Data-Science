@@ -164,14 +164,24 @@ head /home/huiyuhu/biostat-m280-2018-winter/hw2/mendel1.txt
 
 * Part 2:
 ```{r}
-geno_data2 %>%
+output_file <- "/home/huiyuhu/biostat-m280-2018-winter/hw2/mendel2.txt"
+
+mendel2 <- geno_data2 %>%
   mutate(Sex = replace(Sex, Sex == 1, "M")) %>%
   mutate(Sex = replace(Sex, Sex == 2, "F")) %>%
-  mutate(Father = replace(Father, Father == "0", NA)) %>%
-  mutate(Mother = replace(Mother, Mother == "0", NA)) %>%
-  mutate(Affection = replace(Affection, Affection == 0, NA))
+  mutate(Father = replace(Father, Father == "0", "")) %>%
+  mutate(Mother = replace(Mother, Mother == "0", "")) %>%
+  mutate(Affection = replace(Affection, Affection == 0, "")) %>%
+  mutate(Person = str_replace(Person, "T2DG", "")) %>%
+  mutate(Father = str_replace(Father, "T2DG", "")) %>%
+  mutate(Mother = str_replace(Mother, "T2DG", "")) 
+ 
+write_delim(mendel2, output_file, delim = ",", col_names = FALSE)
 ```
 
+```{bash}
+head -20 /home/huiyuhu/biostat-m280-2018-winter/hw2/mendel2.txt
+```
 
 ## Q4 (optional)
 

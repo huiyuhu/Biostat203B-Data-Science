@@ -386,26 +386,40 @@ write_delim(mendel, output_file, delim = &quot;,&quot;, col_names = FALSE, appen
 <ul>
 <li>Part 2:</li>
 </ul>
-<pre class="r"><code>geno_data2 %&gt;%
+<pre class="r"><code>output_file &lt;- &quot;/home/huiyuhu/biostat-m280-2018-winter/hw2/mendel2.txt&quot;
+
+mendel2 &lt;- geno_data2 %&gt;%
   mutate(Sex = replace(Sex, Sex == 1, &quot;M&quot;)) %&gt;%
   mutate(Sex = replace(Sex, Sex == 2, &quot;F&quot;)) %&gt;%
-  mutate(Father = replace(Father, Father == &quot;0&quot;, NA)) %&gt;%
-  mutate(Mother = replace(Mother, Mother == &quot;0&quot;, NA)) %&gt;%
-  mutate(Affection = replace(Affection, Affection == 0, NA))</code></pre>
-<pre><code>## # A tibble: 959 x 6
-##    Family Person      Father Mother Sex   Affection
-##     &lt;int&gt; &lt;chr&gt;       &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;     &lt;int&gt;
-##  1      2 T2DG0200001 &lt;NA&gt;   &lt;NA&gt;   M            NA
-##  2      2 T2DG0200002 &lt;NA&gt;   &lt;NA&gt;   F            NA
-##  3      2 T2DG0200003 &lt;NA&gt;   &lt;NA&gt;   F            NA
-##  4      2 T2DG0200004 &lt;NA&gt;   &lt;NA&gt;   F            NA
-##  5      2 T2DG0200005 &lt;NA&gt;   &lt;NA&gt;   M            NA
-##  6      2 T2DG0200006 &lt;NA&gt;   &lt;NA&gt;   M            NA
-##  7      2 T2DG0200007 &lt;NA&gt;   &lt;NA&gt;   F            NA
-##  8      2 T2DG0200008 &lt;NA&gt;   &lt;NA&gt;   F            NA
-##  9      2 T2DG0200009 &lt;NA&gt;   &lt;NA&gt;   F            NA
-## 10      2 T2DG0200012 &lt;NA&gt;   &lt;NA&gt;   M            NA
-## # ... with 949 more rows</code></pre>
+  mutate(Father = replace(Father, Father == &quot;0&quot;, &quot;&quot;)) %&gt;%
+  mutate(Mother = replace(Mother, Mother == &quot;0&quot;, &quot;&quot;)) %&gt;%
+  mutate(Affection = replace(Affection, Affection == 0, &quot;&quot;)) %&gt;%
+  mutate(Person = str_replace(Person, &quot;T2DG&quot;, &quot;&quot;)) %&gt;%
+  mutate(Father = str_replace(Father, &quot;T2DG&quot;, &quot;&quot;)) %&gt;%
+  mutate(Mother = str_replace(Mother, &quot;T2DG&quot;, &quot;&quot;)) 
+ 
+write_delim(mendel2, output_file, delim = &quot;,&quot;, col_names = FALSE)</code></pre>
+<pre class="bash"><code>head -20 /home/huiyuhu/biostat-m280-2018-winter/hw2/mendel2.txt</code></pre>
+<pre><code>## 2,0200001,,,M,
+## 2,0200002,,,F,
+## 2,0200003,,,F,
+## 2,0200004,,,F,
+## 2,0200005,,,M,
+## 2,0200006,,,M,
+## 2,0200007,,,F,
+## 2,0200008,,,F,
+## 2,0200009,,,F,
+## 2,0200012,,,M,
+## 2,0200013,,,M,
+## 2,0200018,,,M,
+## 2,0200023,,,F,
+## 2,0200024,,,M,
+## 2,0200027,,,F,
+## 2,0200031,0200001,0200015,M,
+## 2,0200032,0200001,0200015,F,
+## 2,0200033,0200001,0200015,F,
+## 2,0200034,0200001,0200015,F,
+## 2,0200035,0200001,0200015,F,</code></pre>
 </div>
 <div id="q4-optional" class="section level2">
 <h2>Q4 (optional)</h2>
