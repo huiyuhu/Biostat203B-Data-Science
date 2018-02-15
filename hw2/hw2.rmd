@@ -15,20 +15,26 @@ Read [Chapter 7](http://r4ds.had.co.nz/exploratory-data-analysis.html) (Explorat
 1.Explore the distribution of each of the x, y, and z variables in diamonds. What do you learn? Think about a diamond and how you might decide which dimension is the length, width, and depth.
 ```{r}
 library("tidyverse")
+diamonds <- diamonds %>% filter(2 < y & y < 20 & 2 < x & 2 < z & z < 20)
 ggplot(data = diamonds) +
-  geom_bar(mapping = aes(x = x))
+  geom_bar(mapping = aes(x = x)) + ggtitle("Histogram of x")
 ggplot(data = diamonds) +
-  geom_bar(mapping = aes(x = y))
+  geom_bar(mapping = aes(x = y)) + ggtitle("Histogram of y")
 ggplot(data = diamonds) +
-  geom_bar(mapping = aes(x = z))
+  geom_bar(mapping = aes(x = z)) + ggtitle("Histogram of z")
 ```
+* Answer: By the histogram, the distribution of x,y,z are all right skewed, which means smaller diamonds are more than larger diamonds. In addition, the distribution of x and y are very similar. 
 
 2. Explore the distribution of price. Do you discover anything unusual or surprising? (Hint: Carefully think about the binwidth and make sure you try a wide range of values.)
 
 ```{r}
 ggplot(diamonds) + 
   geom_histogram(mapping = aes(x = price), binwidth = 40)
+
+ggplot(filter(diamonds, price < 1600 & price > 1400), aes(x = price)) +
+  geom_histogram(binwidth = 1, center = 0)
 ```
+* Answer: The overall distribution of price showed right skewed. Unsual and suprising part is that there is no diamond between 1460 and 1590. 
 
 3. How many diamonds are 0.99 carat? How many are 1 carat? What do you think is the cause of the difference?
 ```{r}
@@ -39,8 +45,9 @@ filter(diamonds, carat == 0.99) %>%
 filter(diamonds, carat == 1) %>%
   summarise(n())
 ```
-4. Compare and contrast coord_cartesian() vs xlim() or ylim() when zooming in on a histogram. What happens if you leave binwidth unset? What happens if you try and zoom so only half a bar shows?
+* Answer: there are only 23 diamonds are 0.99 carat but 1558 diamonds are 1 carat. I think the reason is that the most measurements for diamonds can not be preicise to 0.01.
 
+4. Compare and contrast coord_cartesian() vs xlim() or ylim() when zooming in on a histogram. What happens if you leave binwidth unset? What happens if you try and zoom so only half a bar shows?
 ```{r}
 ggplot(diamonds) + 
   geom_histogram(mapping = aes(x = y),binwidth = 0.5) +
