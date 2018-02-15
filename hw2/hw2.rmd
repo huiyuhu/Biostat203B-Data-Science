@@ -72,7 +72,6 @@ diamonds %>%
 #### 7.5.1.1
 1. Use what you’ve learned to improve the visualisation of the departure times of cancelled vs. non-cancelled flights.
 ```{r}
-install.packages("nycflights13")
 library("nycflights13")
 nycflights13::flights %>% 
   mutate(
@@ -148,6 +147,7 @@ filter(geno_data1, Chromosome == 3, bp >= 47892180, bp <= 48130769 ) %>%
 * Answer: There are 894 SNPs located within MAP4 gene.
 
 4. Reformat:
+* Part 1:
 ```{r}
 output_file <- "/home/huiyuhu/biostat-m280-2018-winter/hw2/mendel1.txt"
 fileConn <- file(output_file, open = "a")
@@ -158,8 +158,20 @@ close(fileConn)
 mendel <- geno_data1[, c("SNP_ID", "Chromosome","bp")]
 write_delim(mendel, output_file, delim = ",", col_names = FALSE, append = TRUE)
 ```
+```{bash}
+head /home/huiyuhu/biostat-m280-2018-winter/hw2/mendel1.txt
+```
 
-* 
+* Part 2:
+```{r}
+geno_data2 %>%
+  mutate(Sex = replace(Sex, Sex == 1, "M")) %>%
+  mutate(Sex = replace(Sex, Sex == 2, "F")) %>%
+  mutate(Father = replace(Father, Father == "0", NA)) %>%
+  mutate(Mother = replace(Mother, Mother == "0", NA)) %>%
+  mutate(Affection = replace(Affection, Affection == 0, NA))
+```
+
 
 ## Q4 (optional)
 
