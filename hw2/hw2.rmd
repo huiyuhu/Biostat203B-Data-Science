@@ -35,7 +35,7 @@ ggplot(diamonds) +
 ggplot(filter(diamonds, price < 1600 & price > 1400), aes(x = price)) +
   geom_histogram(binwidth = 1, center = 0)
 ```
-* Answer: The overall distribution of price showed right skewed. Unsual and suprising part is that there is no diamond between 1460 and 1590. 
+* Answer: The overall distribution of price showed right skewed. Unsual and suprising part is that there is no diamond between 1460 and 1590 (1500). 
 
 3. How many diamonds are 0.99 carat? How many are 1 carat? What do you think is the cause of the difference?
 ```{r}
@@ -46,19 +46,28 @@ filter(diamonds, carat == 0.99) %>%
 filter(diamonds, carat == 1) %>%
   summarise(n())
 ```
-* Answer: there are only 23 diamonds are 0.99 carat but 1558 diamonds are 1 carat. I think the reason is that the most measurements for diamonds can not be preicise to 0.01.
+* Answer: there are only 23 diamonds are 0.99 carat but 1558 diamonds are 1 carat. I think the reason is that the most measurements for diamonds can not be preicise to 0.01 and seller tend to make the carat integer.
 
 4. Compare and contrast coord_cartesian() vs xlim() or ylim() when zooming in on a histogram. What happens if you leave binwidth unset? What happens if you try and zoom so only half a bar shows?
 ```{r}
 ggplot(diamonds) + 
-  geom_histogram(mapping = aes(x = y),binwidth = 0.5) +
+  geom_histogram(mapping = aes(y), binwidth = 0.5) +
   coord_cartesian(ylim = c(0, 100))
+```
+
+```{r}
 # What happens if you leave binwidth unset?
 ggplot(diamonds) + 
-  geom_histogram(mapping = aes(x = y)) +
+  geom_histogram(mapping = aes(y)) +
   coord_cartesian(ylim = c(0, 100))
-# What happens if you try and zoom so only half a bar shows?
+```
 
+
+```{r}
+# What happens if you try and zoom so only half a bar shows?
+ggplot(diamonds, aes(y)) +
+  geom_histogram(bins = 30) +
+  coord_cartesian(xlim = c(2, 60), ylim = c(0, 100))
 ```
 
 #### exercises 7.4.1
