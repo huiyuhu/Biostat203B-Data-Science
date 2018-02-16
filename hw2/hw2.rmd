@@ -175,13 +175,20 @@ nycflights13::flights %>% group_by(dest, month) %>%
   geom_tile(mapping = aes(x = month, y = dest, fill = avg))
 
 ```
-* The result is super difficult to read because there are so many destinations. The color scale is also difficult to distinguish the pattern of the distribution. In addition, there are also a lot missing values. 
-* To improve this result, we may seperate the distination to make the y-axis have less categories. We can filter the most common dest to analyze. 
+* The result is super difficult to read because there are so many destinations, which make the plot so mess. The color scale is also difficult to distinguish the pattern of the distribution. In addition, there are also a lot missing values. 
+* To improve this result, we may seperate the distination to make the y-axis have less categories. We can filter the most common dest to analyze. In addition, we can filter the missing value from dataset.
 ```{r}
-nycflights13::flights %>% group_by(dest, month) %>%
-  mutate(avg = mean(dep_delay, na.rm = TRUE)) %>%
-  ggplot() +
-  geom_tile(mapping = aes(x = month, y = dest, fill = avg))
+not_cancelled <- nycflights13::flights %>% 
+  drop_na(dep_time)
+common_dest <- not_cancelled %>%
+  group_by(dest) %>%
+    count(sort = T) %>% .[1:10,]
+
+not_cancelled %>% filter(dest %in% common_dest$dest) %>%
+    group_by(dest, month) %>%
+    summarise(avg = mean(dep_delay)) %>%
+    ggplot(aes(month, dest, fill = avg)) +
+    geom_tile(mapping = aes(x = month, y = dest, fill = avg))
 ```
 
 3.Why is it slightly better to use aes(x = color, y = cut) rather than aes(x = cut, y = color) in the example above?
