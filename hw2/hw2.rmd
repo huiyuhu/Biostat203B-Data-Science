@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Q1
 
 Read [Chapter 7](http://r4ds.had.co.nz/exploratory-data-analysis.html) (Exploratory Data Analysis) of _R for Data Science_ and do exercises 7.3.4, 7.4.1, 7.5.1.1, 7.5.2.1, and 7.5.3.1.
+
 #### exercises 7.3.4
 1.Explore the distribution of each of the x, y, and z variables in diamonds. What do you learn? Think about a diamond and how you might decide which dimension is the length, width, and depth.
 ```{r}
@@ -147,6 +148,82 @@ ggplot(diamonds, aes(cut, carat)) +
     geom_jitter()
 ```
 
+####7.5.2.1
+
+1.How could you rescale the count dataset above to more clearly show the distribution of cut within colour, or colour within cut?
+```{r}
+# install.packages("viridisLite")
+# library(viridisLite)
+# diamonds %>% 
+#   count(color, cut) %>% 
+#   group_by(color) %>%
+#   ggplot(mapping = aes(x = color, y = cut)) +
+#   geom_tile(mapping = aes(fill = n)) +
+#   scale_color_viridis()
+# 
+# diamonds %>% 
+#   count(color, cut) %>% 
+#   group_by(color) %>% 
+#   mutate(prop = n / sum(n)) %>% 
+#   ggplot(aes(x = color, y = cut)) +
+#   geom_tile(aes(fill = prop))
+```
+
+2. Use geom_tile() together with dplyr to explore how average flight delays vary by destination and month of year. What makes the plot difficult to read? How could you improve it?
+```{r}
+
+```
+
+3.Why is it slightly better to use aes(x = color, y = cut) rather than aes(x = cut, y = color) in the example above?
+```{r}
+
+```
+
+####7.5.3.1
+1. Instead of summarising the conditional distribution with a boxplot, you could use a frequency polygon. What do you need to consider when using cut_width() vs cut_number()? How does that impact a visualisation of the 2d distribution of carat and price?
+* Answer: cut_width() makes groups of width width; cut_number() makes n groups with (approximately) equal numbers of observations.
+```{r}
+ggplot(data = diamonds, aes(x=carat, colour = cut_number(price, 10))) +
+ geom_freqpoly(bins = 100)
+ggplot(data = diamonds, aes(x=carat, colour = cut_width(price, 2000))) +
+ geom_freqpoly(bins = 100)
+
+ggplot(data = diamonds, 
+       mapping = aes(x = price, colour = cut_width(carat, 0.3))) +
+  geom_freqpoly(bins = 100)
+```
+
+2. Visualise the distribution of carat, partitioned by price.
+* Use the cut_width() to make the plot partitioned by price.
+```{r}
+ggplot(diamonds) +
+  geom_density(mapping = aes(x = carat,
+                             color = cut_width(price, 5000, boundary = 0)))
+```
+
+3. How does the price distribution of very large diamonds compare to small diamonds. Is it as you expect, or does it surprise you?
+```{r}
+ggplot(diamonds) +
+geom_boxplot(mapping = aes(x = cut_width(carat, 1),
+                             y = price))
+ggplot(diamonds) +
+geom_boxplot(mapping = aes(x = cut_number(carat, 12),
+                             y = price))
+
+```
+* Answer: Use cut_width and cut_number to do the boxplot. As I expect, as the carat get large the price also get large. In addition, I found Large diamonds' prices are super high.
+
+4. Combine two of the techniques you’ve learned to visualise the combined distribution of cut, carat, and price.
+```{r}
+diamonds %>% mutate(carat_group = cut_number(carat, 10)) %>%
+  group_by(cut, carat_group) %>%
+  summarize(avg_price = mean(price)) %>%
+  ggplot() +
+  geom_tile(mapping = aes(x = cut, y = carat_group,
+                          fill = avg_price))
+```
+
+5. Two dimensional plots reveal outliers that are not visible in one dimensional plots. For example, some points in the plot below have an unusual combination of x and y values, which makes the points outliers even though their x and y values appear normal when examined separately.
 
 ## Q2 (optional)
 
