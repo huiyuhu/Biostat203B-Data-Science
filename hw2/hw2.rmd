@@ -151,33 +151,47 @@ ggplot(diamonds, aes(cut, carat)) +
 ####7.5.2.1
 
 1.How could you rescale the count dataset above to more clearly show the distribution of cut within colour, or colour within cut?
+* This is the code and result from the textbook.
 ```{r}
-# install.packages("viridisLite")
-# library(viridisLite)
-# diamonds %>% 
-#   count(color, cut) %>% 
-#   group_by(color) %>%
-#   ggplot(mapping = aes(x = color, y = cut)) +
-#   geom_tile(mapping = aes(fill = n)) +
-#   scale_color_viridis()
-# 
-# diamonds %>% 
-#   count(color, cut) %>% 
-#   group_by(color) %>% 
-#   mutate(prop = n / sum(n)) %>% 
-#   ggplot(aes(x = color, y = cut)) +
-#   geom_tile(aes(fill = prop))
+diamonds %>% 
+  count(color, cut) %>%  
+  ggplot(mapping = aes(x = color, y = cut)) +
+    geom_tile(mapping = aes(fill = n))
 ```
+* To rescale the count dataset above to more clearly, we can add a new proportion value to show the distribution.
+```{r}
+diamonds %>% group_by(color) %>% count(color, cut) %>%
+  mutate(prop = n / sum(n)) %>%
+  ggplot() +
+  geom_tile(mapping = aes(x = color, y = cut, fill = prop)) 
+```
+
 
 2. Use geom_tile() together with dplyr to explore how average flight delays vary by destination and month of year. What makes the plot difficult to read? How could you improve it?
 ```{r}
+nycflights13::flights %>% group_by(dest, month) %>%
+  mutate(avg = mean(dep_delay, na.rm = TRUE)) %>%
+  ggplot() +
+  geom_tile(mapping = aes(x = month, y = dest, fill = avg))
 
+```
+* The result is super difficult to read because there are so many destinations. The color scale is also difficult to distinguish the pattern of the distribution. In addition, there are also a lot missing values. 
+* To improve this result, we may seperate the distination to make the y-axis have less categories. We can filter the most common dest to analyze. 
+```{r}
+nycflights13::flights %>% group_by(dest, month) %>%
+  mutate(avg = mean(dep_delay, na.rm = TRUE)) %>%
+  ggplot() +
+  geom_tile(mapping = aes(x = month, y = dest, fill = avg))
 ```
 
 3.Why is it slightly better to use aes(x = color, y = cut) rather than aes(x = cut, y = color) in the example above?
 ```{r}
-
+diamonds %>% 
+  count(color, cut) %>%  
+  ggplot(mapping = aes(x = cut, y = color)) +
+    geom_tile(mapping = aes(fill = n))
 ```
+* It showed same pattern but inversed. Using aes(x = color, y = cut) is better because there are more catagories in color, which is better to put on the x-axis. 
 
 ####7.5.3.1
 1. Instead of summarising the conditional distribution with a boxplot, you could use a frequency polygon. What do you need to consider when using cut_width() vs cut_number()? How does that impact a visualisation of the 2d distribution of carat and price?
