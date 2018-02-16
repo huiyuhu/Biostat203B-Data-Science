@@ -74,23 +74,78 @@ diamonds %>%
 * Answer: 
 
 2. What does na.rm = TRUE do in mean() and sum()?
-* Answer: 
+```{r}
+mean(c(10, 30, 20, NA), na.rm = FALSE)
+mean(c(10, 30, 20, NA), na.rm = TRUE)
+sum(c(10, 30, 20, NA), na.rm = FALSE)
+sum(c(10, 30, 20, NA), na.rm = TRUE)
+```
+* Answer: na.rm is used to remove NA (missing value) to calculate the mean and sum. If the data has missing value and na.rm = FALSE, then there will be no result.
 
 #### 7.5.1.1
 1. Use what you’ve learned to improve the visualisation of the departure times of cancelled vs. non-cancelled flights.
 ```{r}
 library("nycflights13")
-nycflights13::flights %>% 
-  mutate(
-    cancelled = is.na(dep_time),
-    sched_hour = sched_dep_time %/% 100,
-    sched_min = sched_dep_time %% 100,
-    sched_dep_time = sched_hour + sched_min / 60
-  ) %>% 
-  ggplot(mapping = aes(sched_dep_time)) + 
-    geom_freqpoly(mapping = aes(colour = cancelled), binwidth = 1/4)
+nycflights13::flights %>% mutate(cancelled = is.na(dep_time)) %>%
+    ggplot(aes(sched_dep_time)) +
+    geom_density() +
+    facet_wrap(~cancelled) 
 ```
+*  Answer: By the density for depature time we can see the distribution clearly, most of the cancelled flights were shechdule at afternoon.
 
+2. What variable in the diamonds dataset is most important for predicting the price of a diamond? How is that variable correlated with cut? Why does the combination of those two relationships lead to lower quality diamonds being more expensive?
+* I think the most important for predicting the price of a diamond is carat(how big is it).
+The plot of carat and price shown as below:
+```{r}
+ggplot(data = diamonds, mapping = aes(x = price)) + 
+  geom_point(mapping = aes(x = carat, y = price,colour = cut))
+
+ggplot(diamonds) +
+  geom_boxplot(aes(x = cut, y = carat))
+
+```
+* Answer: Because better cut has lower carat which makes their price lower, so if we don’t look at carat, it would appear that better cut has lower price.
+
+3. Install the ggstance package, and create a horizontal boxplot. How does this compare to using coord_flip()?
+```{r}
+library(ggstance)
+ggplot(diamonds) + geom_boxploth(aes(x = carat, y = cut))
+ggplot(diamonds) + geom_boxplot(aes(x = cut, y = carat)) + coord_flip()
+
+```
+* The result plots showed they are same.
+
+4. One problem with boxplots is that they were developed in an era of much smaller datasets and tend to display a prohibitively large number of “outlying values”. One approach to remedy this problem is the letter value plot. Install the lvplot package, and try using geom_lv() to display the distribution of price vs cut. What do you learn? How do you interpret the plots?
+```{r}
+library(lvplot)
+ggplot(diamonds, aes(x = cut, y = price)) + geom_lv() 
+```
+* Answer: 
+
+5. Compare and contrast geom_violin() with a facetted geom_histogram(), or a coloured geom_freqpoly(). What are the pros and cons of each method?
+```{r}
+# use geom_violin()
+ggplot(diamonds) +
+  geom_violin(aes(x = cut, y = price))
+# use geom_histogram()
+ggplot(diamonds) +
+  geom_histogram(aes(x = price), binwidth = 20) +
+  facet_wrap(~cut)
+# use geom_freqpoly()
+ggplot(diamonds) +
+  geom_freqpoly(aes(x = price)) +
+  facet_wrap(~cut)
+```
+* Answer: geom_violin() showed smoth curve but difficult to see where is peak. geom_histogram() can be modified with but hart to make compairision. geom_freqpoly() can showed the trends very well but cannot showed the gaps and exact count.
+
+6.If you have a small dataset, it’s sometimes useful to use geom_jitter() to see the relationship between a continuous and categorical variable. The ggbeeswarm package provides a number of methods similar to geom_jitter(). List them and briefly describe what each one does.
+```{r}
+library(ggbeeswarm)
+ggplot(diamonds, aes(cut, carat)) +
+    geom_quasirandom()
+ggplot(diamonds, aes(cut, carat)) +
+    geom_jitter()
+```
 
 
 ## Q2 (optional)
