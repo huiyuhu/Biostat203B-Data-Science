@@ -215,15 +215,31 @@ geom_boxplot(mapping = aes(x = cut_number(carat, 12),
 
 4. Combine two of the techniques you’ve learned to visualise the combined distribution of cut, carat, and price.
 ```{r}
-diamonds %>% mutate(carat_group = cut_number(carat, 10)) %>%
-  group_by(cut, carat_group) %>%
-  summarize(avg_price = mean(price)) %>%
-  ggplot() +
-  geom_tile(mapping = aes(x = cut, y = carat_group,
-                          fill = avg_price))
+# Use geom_jitter()
+ggplot(diamonds) +
+  geom_jitter(mapping = aes(x = cut, y = price,
+                             color = cut_number(carat, 5)))
+```
+```{r}
+#Or use geom_boxplot()
+ggplot(diamonds) +
+  geom_boxplot(mapping = aes(x = cut, y = price,
+                             color = cut_number(carat, 5)))
 ```
 
 5. Two dimensional plots reveal outliers that are not visible in one dimensional plots. For example, some points in the plot below have an unusual combination of x and y values, which makes the points outliers even though their x and y values appear normal when examined separately.
+```{r}
+ggplot(data = diamonds) +
+  geom_point(mapping = aes(x = x, y = y)) +
+  coord_cartesian(xlim = c(4, 11), ylim = c(4, 11))
+```
+Why is a scatterplot a better display than a binned plot for this case?
+* If we use the binned plot, the result showed as below:
+```{r}
+ggplot(data = diamonds) +
+  geom_bin2d(mapping = aes(x = x, y = y), bins = 100)
+```
+* The shape of the line showed similar pattern. But I believe that scatterplot a better display than a binned plot is because that count in this case is not very important, so it is better to focus on the patter of the x and y.
 
 ## Q2 (optional)
 
