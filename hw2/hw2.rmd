@@ -73,15 +73,15 @@ ggplot(diamonds, aes(y)) +
 #### exercises 7.4.1
 1. What happens to missing values in a histogram? What happens to missing values in a bar chart? Why is there a difference?
 ```{r}
-diamonds %>%
-  ggplot(aes(price)) +
-  geom_histogram(bins = 500)
+nycflights13::flights %>%
+  ggplot(aes(dep_time)) +
+  geom_histogram(bins = 20)
 
-diamonds %>%
-  ggplot(aes(price)) +
+nycflights13::flights %>%
+  ggplot(aes(dep_time)) +
   geom_bar()
 ```
-* Answer: 
+* Answer: There is no gap in histogram. However, there are gaps in dep_time (NAs). Histograms are continuous so there is no natural place to put them.
 
 2. What does na.rm = TRUE do in mean() and sum()?
 ```{r}
