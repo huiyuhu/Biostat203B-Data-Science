@@ -72,6 +72,7 @@ ggplot(diamonds, aes(y)) +
 
 #### exercises 7.4.1
 1. What happens to missing values in a histogram? What happens to missing values in a bar chart? Why is there a difference?
+* Use the depart_time in fight data to do this problem:
 ```{r}
 nycflights13::flights %>%
   ggplot(aes(dep_time)) +
@@ -120,6 +121,7 @@ ggplot(diamonds) +
 ```{r}
 library(ggstance)
 ggplot(diamonds) + geom_boxploth(aes(x = carat, y = cut))
+
 ggplot(diamonds) + geom_boxplot(aes(x = cut, y = carat)) + coord_flip()
 
 ```
@@ -128,7 +130,8 @@ ggplot(diamonds) + geom_boxplot(aes(x = cut, y = carat)) + coord_flip()
 4. One problem with boxplots is that they were developed in an era of much smaller datasets and tend to display a prohibitively large number of “outlying values”. One approach to remedy this problem is the letter value plot. Install the lvplot package, and try using geom_lv() to display the distribution of price vs cut. What do you learn? How do you interpret the plots?
 ```{r}
 library(lvplot)
-ggplot(diamonds, aes(x = cut, y = price)) + geom_lv() 
+ggplot(diamonds, aes(x = cut, y = price, fill = cut)) +
+  geom_lv() 
 ```
 * Answer: 
 
@@ -146,14 +149,16 @@ ggplot(diamonds) +
   geom_freqpoly(aes(x = price)) +
   facet_wrap(~cut)
 ```
-* Answer: geom_violin() showed smoth curve but difficult to see where is peak. geom_histogram() can be modified with but hart to make compairision. geom_freqpoly() can showed the trends very well but cannot showed the gaps and exact count.
+* Answer: geom_violin() showed smoth curve and distribution but difficult to see where is peak. geom_histogram() can be modified with but hart to make compairision. geom_freqpoly() can showed the trends very well but cannot showed the gaps and exact count. I prefered the geom_freqpoly(), since it's clear to see the distribution and the peak.
 
 6.If you have a small dataset, it’s sometimes useful to use geom_jitter() to see the relationship between a continuous and categorical variable. The ggbeeswarm package provides a number of methods similar to geom_jitter(). List them and briefly describe what each one does.
 ```{r}
 library(ggbeeswarm)
-ggplot(diamonds, aes(cut, carat)) +
+small_diamonds <- filter(diamonds, cut <= 1) %>%
+ggplot(aes(cut, carat)) +
     geom_quasirandom()
-ggplot(diamonds, aes(cut, carat)) +
+
+ggplot(diamonds, aes(cut, carat, fill = cut)) +
     geom_jitter()
 ```
 
