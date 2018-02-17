@@ -133,7 +133,7 @@ library(lvplot)
 ggplot(diamonds, aes(x = cut, y = price, fill = cut)) +
   geom_lv() 
 ```
-* Answer: 
+* Answer: lvplot showed the overall density (distribution) regardless outliers. Price for each cut is overall right skewed. In addition, we can conclude that there are few fair diamonds that are larger than 15000 based on the distribution.
 
 5. Compare and contrast geom_violin() with a facetted geom_histogram(), or a coloured geom_freqpoly(). What are the pros and cons of each method?
 ```{r}
@@ -154,11 +154,13 @@ ggplot(diamonds) +
 6.If you have a small dataset, it’s sometimes useful to use geom_jitter() to see the relationship between a continuous and categorical variable. The ggbeeswarm package provides a number of methods similar to geom_jitter(). List them and briefly describe what each one does.
 ```{r}
 library(ggbeeswarm)
-small_diamonds <- filter(diamonds, cut <= 1) %>%
+# Get a small dataset
+small_diamonds <- filter(diamonds, carat <= 0.4)
+small_diamonds %>%
 ggplot(aes(cut, carat)) +
     geom_quasirandom()
 
-ggplot(diamonds, aes(cut, carat, fill = cut)) +
+ggplot(small_diamonds, aes(cut, carat, fill = cut)) +
     geom_jitter()
 ```
 
@@ -190,15 +192,16 @@ nycflights13::flights %>% group_by(dest, month) %>%
 
 ```
 * The result is super difficult to read because there are so many destinations, which make the plot so mess. The color scale is also difficult to distinguish the pattern of the distribution. In addition, there are also a lot missing values. 
-* To improve this result, we may seperate the distination to make the y-axis have less categories. We can filter the most common dest to analyze. In addition, we can filter the missing value from dataset.
+* To improve this result, we may seperate the distination to make the y-axis have less categories. We can filter the most common dest to analyze. In addition, we can filter the missing value from dataset at first to make sure that there is no blank in the result.
 ```{r}
 not_cancelled <- nycflights13::flights %>% 
-  drop_na(dep_time)
-common_dest <- not_cancelled %>%
+  filter(!is.na(dep_delay), !is.na(arr_delay))
+  #drop_na(dep_delay)
+popular_dest <- not_cancelled %>%
   group_by(dest) %>%
-    count(sort = T) %>% .[1:10,]
+    count(sort = T) %>% .[1:20,]
 
-not_cancelled %>% filter(dest %in% common_dest$dest) %>%
+not_cancelled %>% filter(dest %in% popular_dest$dest) %>%
     group_by(dest, month) %>%
     summarise(avg = mean(dep_delay)) %>%
     ggplot(aes(month, dest, fill = avg)) +
@@ -218,15 +221,14 @@ diamonds %>%
 1. Instead of summarising the conditional distribution with a boxplot, you could use a frequency polygon. What do you need to consider when using cut_width() vs cut_number()? How does that impact a visualisation of the 2d distribution of carat and price?
 * Answer: cut_width() makes groups of width width; cut_number() makes n groups with (approximately) equal numbers of observations.
 ```{r}
+# use cut_number 
 ggplot(data = diamonds, aes(x=carat, colour = cut_number(price, 10))) +
  geom_freqpoly(bins = 100)
+# Use cut_width
 ggplot(data = diamonds, aes(x=carat, colour = cut_width(price, 2000))) +
  geom_freqpoly(bins = 100)
-
-ggplot(data = diamonds, 
-       mapping = aes(x = price, colour = cut_width(carat, 0.3))) +
-  geom_freqpoly(bins = 100)
 ```
+
 
 2. Visualise the distribution of carat, partitioned by price.
 * Use the cut_width() to make the plot partitioned by price.
@@ -250,18 +252,23 @@ geom_boxplot(mapping = aes(x = cut_number(carat, 12),
 
 4. Combine two of the techniques you’ve learned to visualise the combined distribution of cut, carat, and price.
 ```{r}
-# Use geom_jitter()
-ggplot(diamonds) +
-  geom_jitter(mapping = aes(x = cut, y = price,
-                             color = cut_number(carat, 5)))
+# Use geom_tile to map the ave_price
+diamonds %>%  
+        group_by(cut, cut_number(carat, 10)) %>% 
+        summarise(avg_price = mean(price, na.rm = TRUE)) %>% 
+        ggplot() +
+        geom_tile(mapping = aes(x = cut, y = `cut_number(carat, 10)`, fill = avg_price))
 ```
+* Overall, better cut and larger carat, higher the price.
+
 ```{r}
 #Or use geom_boxplot()
 ggplot(diamonds) +
   geom_boxplot(mapping = aes(x = cut, y = price,
                              color = cut_number(carat, 5)))
+# I prefer using this method
 ```
-
+* The plot showed that 
 5. Two dimensional plots reveal outliers that are not visible in one dimensional plots. For example, some points in the plot below have an unusual combination of x and y values, which makes the points outliers even though their x and y values appear normal when examined separately.
 ```{r}
 ggplot(data = diamonds) +
@@ -274,7 +281,7 @@ Why is a scatterplot a better display than a binned plot for this case?
 ggplot(data = diamonds) +
   geom_bin2d(mapping = aes(x = x, y = y), bins = 100)
 ```
-* The shape of the line showed similar pattern. But I believe that scatterplot a better display than a binned plot is because that count in this case is not very important, so it is better to focus on the patter of the x and y.
+* The shape of the line showed similar pattern. But I believe that scatterplot a better display than a binned plot is because that count in this case is not very important, so it is better to focus on the patter of the x and y since binned is compleciated. In addition, binned plot would not reveal these outliers.
 
 ## Q2 (optional)
 
@@ -348,6 +355,7 @@ close(fileConn)
 mendel <- geno_data1[, c("SNP_ID", "Chromosome","bp")]
 write_delim(mendel, output_file, delim = ",", col_names = FALSE, append = TRUE)
 ```
+* Use the linux to check the result:
 ```{bash}
 head /home/huiyuhu/biostat-m280-2018-winter/hw2/mendel1.txt
 ```
@@ -368,7 +376,7 @@ mendel2 <- geno_data2 %>%
  
 write_delim(mendel2, output_file, delim = ",", col_names = FALSE)
 ```
-
+* Use linux code to check the result:
 ```{bash}
 head -20 /home/huiyuhu/biostat-m280-2018-winter/hw2/mendel2.txt
 ```
