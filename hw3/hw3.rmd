@@ -29,8 +29,35 @@ The `/home/m280-data/la_payroll/LA_City_Employee_Payroll.csv` file on teaching s
 ## Q2 LA City Parking War
 
 The SQLite database `/home/m280-data/la_parking/LA_Parking_Citations.sqlite` on teaching server contains information about parking tickets in LA City. It was downloaded from [LA Open Data Portal](https://data.lacity.org/A-Well-Run-City/Parking-Citations/wjz9-h9np). Connect to the database and answer following questions using plots and summary statistics. In this exercise, you are **not** allowed to load whole data into memory. Use the _transform in database, plot in R_ strategy.
+```{r}
+library("DBI")
+library("RSQLite")
+library("tidyverse")
+
+#Connect
+con = dbConnect(RSQLite::SQLite(), "/home/m280-data/la_parking/LA_Parking_Citations.sqlite")
+str(con)
+dbListTables(con)
+knitr::opts_chunk$set(connection = "con")
+```
+
 
 1. How many tickets are in this data set? Which time period do these tickets span? Which years have most data?
+```{sql connection="con"}
+SELECT COUNT(DISTINCT Ticket_number) AS tick_num FROM latix;
+```
+
+##### There are 4044338 tickets (distinct) in this data sets.
+
+```{sql connection="con"}
+--SELECT MAX(Issue_DateTime) AS "Max Date", MIN(Issue_DateTime) AS "Min Date" FROM latix;
+SELECT DATETIME(MAX(Issue_DateTime), 'unixepoch') AS "Max TIME",
+        DATETIME(MIN(Issue_DateTime), 'unixepoch') AS "Min TIME" FROM latix;
+```
+
+##### The time period is from 2010-04-27 21:40:00 UTC to 2017-12-30 01:41:00 UTC.
+
+
 
 0. When (which hour, weekday, month day, and month) are you most likely to get a ticket and when are you least likely to get a ticket?
 
