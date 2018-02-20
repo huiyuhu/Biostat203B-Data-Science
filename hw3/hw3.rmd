@@ -47,17 +47,28 @@ knitr::opts_chunk$set(connection = "con")
 SELECT COUNT(DISTINCT Ticket_number) AS tick_num FROM latix;
 ```
 
-##### There are 4044338 tickets (distinct) in this data sets.
+* There are `4044338` tickets (distinct) in this data sets.
 
 ```{sql connection="con"}
 --SELECT MAX(Issue_DateTime) AS "Max Date", MIN(Issue_DateTime) AS "Min Date" FROM latix;
 SELECT DATETIME(MAX(Issue_DateTime), 'unixepoch') AS "Max TIME",
-        DATETIME(MIN(Issue_DateTime), 'unixepoch') AS "Min TIME" FROM latix;
+        DATETIME(MIN(Issue_DateTime), 'unixepoch') AS "Min TIME" 
+FROM latix;
 ```
 
-##### The time period is from 2010-04-27 21:40:00 UTC to 2017-12-30 01:41:00 UTC.
+* The time period is `from 2010-04-27 21:40:00 UTC to 2017-12-30 01:41:00 UTC`.
 
+```{sql connection="con"}
+SELECT 
+  strftime('%Y', DATETIME(Issue_DateTime, 'unixepoch')) AS Year, 
+  COUNT(*) AS Number
+FROM latix
+WHERE Issue_DateTime IS NOT NULL
+GROUP BY 1
+ORDER BY 2 DESC;
+```
 
+* `2015` has most of the data.
 
 0. When (which hour, weekday, month day, and month) are you most likely to get a ticket and when are you least likely to get a ticket?
 

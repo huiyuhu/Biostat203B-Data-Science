@@ -159,7 +159,7 @@ str(con)</code></pre>
 ##   ..@ loadable.extensions: logi TRUE
 ##   ..@ flags              : int 70
 ##   ..@ vfs                : chr &quot;&quot;
-##   ..@ ref                :&lt;environment: 0x5348e58&gt;</code></pre>
+##   ..@ ref                :&lt;environment: 0x6131408&gt;</code></pre>
 <pre class="r"><code>dbListTables(con)</code></pre>
 <pre><code>## [1] &quot;latix&quot;</code></pre>
 <pre class="r"><code>knitr::opts_chunk$set(connection = &quot;con&quot;)</code></pre>
@@ -182,11 +182,13 @@ str(con)</code></pre>
 </tbody>
 </table>
 </div>
-<div id="there-are-4044338-tickets-distinct-in-this-data-sets." class="section level5">
-<h5>There are 4044338 tickets (distinct) in this data sets.</h5>
+<ul>
+<li>There are <code>4044338</code> tickets (distinct) in this data sets.</li>
+</ul>
 <pre class="sql"><code>--SELECT MAX(Issue_DateTime) AS &quot;Max Date&quot;, MIN(Issue_DateTime) AS &quot;Min Date&quot; FROM latix;
 SELECT DATETIME(MAX(Issue_DateTime), 'unixepoch') AS &quot;Max TIME&quot;,
-        DATETIME(MIN(Issue_DateTime), 'unixepoch') AS &quot;Min TIME&quot; FROM latix;</code></pre>
+        DATETIME(MIN(Issue_DateTime), 'unixepoch') AS &quot;Min TIME&quot; 
+FROM latix;</code></pre>
 <div class="knitsql-table">
 <table>
 <caption>1 records</caption>
@@ -204,9 +206,64 @@ SELECT DATETIME(MAX(Issue_DateTime), 'unixepoch') AS &quot;Max TIME&quot;,
 </tbody>
 </table>
 </div>
+<ul>
+<li>The time period is <code>from 2010-04-27 21:40:00 UTC to 2017-12-30 01:41:00 UTC</code>.</li>
+</ul>
+<pre class="sql"><code>SELECT 
+  strftime('%Y', DATETIME(Issue_DateTime, 'unixepoch')) AS Year, 
+  COUNT(*) AS Number
+FROM latix
+WHERE Issue_DateTime IS NOT NULL
+GROUP BY 1
+ORDER BY 2 DESC;</code></pre>
+<div class="knitsql-table">
+<table>
+<caption>8 records</caption>
+<thead>
+<tr class="header">
+<th align="left">Year</th>
+<th align="right">Number</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">2015</td>
+<td align="right">2161119</td>
+</tr>
+<tr class="even">
+<td align="left">2016</td>
+<td align="right">1763273</td>
+</tr>
+<tr class="odd">
+<td align="left">2014</td>
+<td align="right">39206</td>
+</tr>
+<tr class="even">
+<td align="left">2017</td>
+<td align="right">29719</td>
+</tr>
+<tr class="odd">
+<td align="left">2013</td>
+<td align="right">38</td>
+</tr>
+<tr class="even">
+<td align="left">2012</td>
+<td align="right">29</td>
+</tr>
+<tr class="odd">
+<td align="left">2010</td>
+<td align="right">10</td>
+</tr>
+<tr class="even">
+<td align="left">2011</td>
+<td align="right">10</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div id="the-time-period-is-from-2010-04-27-214000-utc-to-2017-12-30-014100-utc." class="section level5">
-<h5>The time period is from 2010-04-27 21:40:00 UTC to 2017-12-30 01:41:00 UTC.</h5>
+<ul>
+<li><code>2015</code> has most of the data.</li>
+</ul>
 <ol start="0" style="list-style-type: decimal">
 <li><p>When (which hour, weekday, month day, and month) are you most likely to get a ticket and when are you least likely to get a ticket?</p></li>
 <li><p>Which car makes received most citations?</p></li>
@@ -215,7 +272,6 @@ SELECT DATETIME(MAX(Issue_DateTime), 'unixepoch') AS &quot;Max TIME&quot;,
 <li><p>How much money was collected on parking tickets in 2015 and 2016?</p></li>
 <li><p>Visualize any other information you are interested in.</p></li>
 </ol>
-</div>
 </div>
 
 
