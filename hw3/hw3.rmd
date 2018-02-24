@@ -184,7 +184,7 @@ sqlstr_car <-
     Make AS Car,
     COUNT(*) AS Number
   FROM latix
-  WHERE Issue_DateTime IS NOT NULL
+  WHERE Make IS NOT NULL
   GROUP BY 1
   ORDER BY 2 DESC
   LIMIT 1
@@ -194,6 +194,22 @@ dbGetQuery(con, sqlstr_car)
 * The `TOYOTA` received most citations.
 
 0. How many different colors of cars were ticketed? Which color attracted most tickets?
+```{r}
+qlstr_color <- 
+ "SELECT
+    Color AS Color,
+    COUNT(*) AS Number
+  FROM latix
+  WHERE Color IS NOT NULL
+  GROUP BY 1
+  ORDER BY 2 DESC
+"
+color <- dbGetQuery(con, qlstr_color) 
+color[1,]
+nrow(color)
+
+```
+* There are `65` different colors of cars were ticketedThe `Black` car attracted most tickets.
 
 0. What are the most common ticket types?
 
