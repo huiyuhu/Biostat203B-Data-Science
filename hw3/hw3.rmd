@@ -30,14 +30,19 @@ The `/home/m280-data/la_payroll/LA_City_Employee_Payroll.csv` file on teaching s
 
 The SQLite database `/home/m280-data/la_parking/LA_Parking_Citations.sqlite` on teaching server contains information about parking tickets in LA City. It was downloaded from [LA Open Data Portal](https://data.lacity.org/A-Well-Run-City/Parking-Citations/wjz9-h9np). Connect to the database and answer following questions using plots and summary statistics. In this exercise, you are **not** allowed to load whole data into memory. Use the _transform in database, plot in R_ strategy.
 ```{r}
+#Prepare
 library("DBI")
 library("RSQLite")
 library("tidyverse")
+library("lubridate")
+library("magrittr")
 
 #Connect
 con = dbConnect(RSQLite::SQLite(), "/home/m280-data/la_parking/LA_Parking_Citations.sqlite")
 str(con)
 dbListTables(con)
+latix_sql <- dplyr::tbl(con, "latix")
+str(latix_sql)
 knitr::opts_chunk$set(connection = "con")
 ```
 
@@ -65,14 +70,128 @@ SELECT
 FROM latix
 WHERE Issue_DateTime IS NOT NULL
 GROUP BY 1
-ORDER BY 2 DESC;
+ORDER BY 2 DESC
+LIMIT  1;
 ```
 
-* `2015` has most of the data.
+* `2015` has most of the data. 
 
 0. When (which hour, weekday, month day, and month) are you most likely to get a ticket and when are you least likely to get a ticket?
+* For Hour:
+```{r}
+sqlstr_hour <- 
+  "SELECT 
+    strftime('%H', DATETIME(Issue_DateTime, 'unixepoch')) AS Hour
+  FROM latix
+  WHERE Issue_DateTime IS NOT NULL
+"
+hour <- dbGetQuery(con, sqlstr_hour) 
+ggplot(hour, aes(Hour)) + geom_bar()
+
+sqlstr_hour1 <-   
+  "SELECT
+    strftime('%H', DATETIME(Issue_DateTime, 'unixepoch')) AS Hour,
+    COUNT(*) AS Number
+  FROM latix
+  WHERE Issue_DateTime IS NOT NULL
+  GROUP BY 1
+  ORDER BY 2
+"
+hour1 <- dbGetQuery(con, sqlstr_hour1) 
+hour1
+```
+* Based on the barchart above, it most likely to get a ticket at `12` and least likely to get a ticket at `5`. In addition, the summary of count can also confirm this result.
+
+* For weekday: 
+```{r}
+sqlstr_weekday <- 
+  "SELECT 
+    strftime('%w', DATETIME(Issue_DateTime, 'unixepoch')) AS Weekday
+  FROM latix
+  WHERE Issue_DateTime IS NOT NULL
+"
+weekday <- dbGetQuery(con, sqlstr_weekday) 
+ggplot(weekday, aes(Weekday)) + geom_bar()
+
+sqlstr_weekday1 <-   
+  "SELECT
+    strftime('%w', DATETIME(Issue_DateTime, 'unixepoch')) AS Weekday,
+    COUNT(*) AS Number
+  FROM latix
+  WHERE Issue_DateTime IS NOT NULL
+  GROUP BY 1
+  ORDER BY 2
+"
+weekday1 <- dbGetQuery(con, sqlstr_weekday1) 
+
+```
+* Based on the barchart above, it most likely to get a ticket on `Tuesday` and least likely to get a ticket on `Saturday`. In addition, the summary of count can also confirm this result.
+
+* For month day:
+```{r}
+sqlstr_mday <- 
+  "SELECT 
+    strftime('%d', DATETIME(Issue_DateTime, 'unixepoch')) AS Mday
+  FROM latix
+  WHERE Issue_DateTime IS NOT NULL
+"
+mday <- dbGetQuery(con, sqlstr_mday) 
+ggplot(mday, aes(Mday)) + geom_bar()
+
+sqlstr_mday1 <-   
+  "SELECT
+    strftime('%d', DATETIME(Issue_DateTime, 'unixepoch')) AS Mday,
+    COUNT(*) AS Number
+  FROM latix
+  WHERE Issue_DateTime IS NOT NULL
+  GROUP BY 1
+  ORDER BY 2
+"
+mday1 <- dbGetQuery(con, sqlstr_mday1) 
+mday1
+```
+* Based on the barchart above, it most likely to get a ticket on day `22` in a month and least likely to get a ticket on day `31` in a month. In addition, the summary of count can also confirm this result.
+
+* For month:
+```{r}
+sqlstr_month <- 
+  "SELECT 
+    strftime('%m', DATETIME(Issue_DateTime, 'unixepoch')) AS Month
+  FROM latix
+  WHERE Issue_DateTime IS NOT NULL
+"
+month <- dbGetQuery(con, sqlstr_month) 
+ggplot(month, aes(Month)) + geom_bar()
+
+sqlstr_month1 <-   
+  "SELECT
+    strftime('%m', DATETIME(Issue_DateTime, 'unixepoch')) AS Month,
+    COUNT(*) AS Number
+  FROM latix
+  WHERE Issue_DateTime IS NOT NULL
+  GROUP BY 1
+  ORDER BY 2
+"
+month1 <- dbGetQuery(con, sqlstr_month1) 
+month1
+```
+* Based on the barchart above, it most likely to get a ticket in `March` and least likely to get a ticket in `November`. In addition, the summary of count can also confirm this result.
 
 0. Which car makes received most citations?
+```{r}
+sqlstr_car <- 
+ "SELECT
+    Make AS Car,
+    COUNT(*) AS Number
+  FROM latix
+  WHERE Issue_DateTime IS NOT NULL
+  GROUP BY 1
+  ORDER BY 2 DESC
+  LIMIT 1
+"
+dbGetQuery(con, sqlstr_car) 
+```
+* The `TOYOTA` received most citations.
 
 0. How many different colors of cars were ticketed? Which color attracted most tickets?
 
