@@ -175,7 +175,7 @@ str(con)</code></pre>
 ##   ..@ loadable.extensions: logi TRUE
 ##   ..@ flags              : int 70
 ##   ..@ vfs                : chr &quot;&quot;
-##   ..@ ref                :&lt;environment: 0x5a2e670&gt;</code></pre>
+##   ..@ ref                :&lt;environment: 0x5ad2f50&gt;</code></pre>
 <pre class="r"><code>dbListTables(con)</code></pre>
 <pre><code>## [1] &quot;latix&quot;</code></pre>
 <pre class="r"><code>latix_sql &lt;- dplyr::tbl(con, &quot;latix&quot;)
@@ -188,7 +188,7 @@ str(latix_sql)</code></pre>
 ##   .. .. ..@ loadable.extensions: logi TRUE
 ##   .. .. ..@ flags              : int 70
 ##   .. .. ..@ vfs                : chr &quot;&quot;
-##   .. .. ..@ ref                :&lt;environment: 0x5a2e670&gt; 
+##   .. .. ..@ ref                :&lt;environment: 0x5ad2f50&gt; 
 ##   ..$ disco: NULL
 ##   ..- attr(*, &quot;class&quot;)= chr [1:3] &quot;src_dbi&quot; &quot;src_sql&quot; &quot;src&quot;
 ##  $ ops:List of 2
@@ -441,11 +441,65 @@ month1</code></pre>
 <li>Based on the barchart above, it most likely to get a ticket in <code>March</code> and least likely to get a ticket in <code>November</code>. In addition, the summary of count can also confirm this result.</li>
 </ul>
 <ol start="0" style="list-style-type: decimal">
-<li><p>Which car makes received most citations?</p></li>
-<li><p>How many different colors of cars were ticketed? Which color attracted most tickets?</p></li>
+<li>Which car makes received most citations?</li>
+</ol>
+<pre class="r"><code>sqlstr_car &lt;- 
+ &quot;SELECT
+    Make AS Car,
+    COUNT(*) AS Number
+  FROM latix
+  WHERE Make IS NOT NULL
+  GROUP BY 1
+  ORDER BY 2 DESC
+  LIMIT 1
+&quot;
+dbGetQuery(con, sqlstr_car) </code></pre>
+<pre><code>##    Car Number
+## 1 TOYT 669548</code></pre>
+<ul>
+<li>The <code>TOYOTA</code> received most citations.</li>
+</ul>
+<ol start="0" style="list-style-type: decimal">
+<li>How many different colors of cars were ticketed? Which color attracted most tickets?</li>
+</ol>
+<pre class="r"><code>qlstr_color &lt;- 
+ &quot;SELECT
+    Color AS Color,
+    COUNT(*) AS Number
+  FROM latix
+  WHERE Color IS NOT NULL
+  GROUP BY 1
+  ORDER BY 2 DESC
+&quot;
+color &lt;- dbGetQuery(con, qlstr_color) 
+color[1,]</code></pre>
+<pre><code>##   Color Number
+## 1    BK 862283</code></pre>
+<pre class="r"><code>nrow(color)</code></pre>
+<pre><code>## [1] 65</code></pre>
+<ul>
+<li>There are <code>65</code> different colors of cars were ticketedThe <code>Black</code> car attracted most tickets.</li>
+</ul>
+<ol start="0" style="list-style-type: decimal">
 <li><p>What are the most common ticket types?</p></li>
 <li><p>How much money was collected on parking tickets in 2015 and 2016?</p></li>
-<li><p>Visualize any other information you are interested in.</p></li>
+</ol>
+<pre class="r"><code>sqlstr_money &lt;-   
+  &quot;SELECT
+    strftime('%Y', DATETIME(Issue_DateTime, 'unixepoch')) AS Year,
+    SUM(Fine_amount) AS Money
+  FROM latix
+  WHERE Issue_DateTime IS NOT NULL
+  GROUP BY 1
+&quot;
+money &lt;- dbGetQuery(con, sqlstr_money)
+money[money$Year == &quot;2015&quot;,2] + money[money$Year == &quot;2016&quot;,2]</code></pre>
+<pre><code>## [1] 274242930</code></pre>
+<ul>
+<li><code>$ 274242930</code> was collected on parking tickets in 2015 and 2016.</li>
+</ul>
+<ol start="0" style="list-style-type: decimal">
+<li>Visualize any other information you are interested in.</li>
 </ol>
 </div>
 

@@ -212,7 +212,24 @@ nrow(color)
 * There are `65` different colors of cars were ticketedThe `Black` car attracted most tickets.
 
 0. What are the most common ticket types?
+```{r}
+
+```
 
 0. How much money was collected on parking tickets in 2015 and 2016?
+```{r}
+sqlstr_money <-   
+  "SELECT
+    strftime('%Y', DATETIME(Issue_DateTime, 'unixepoch')) AS Year,
+    SUM(Fine_amount) AS Money
+  FROM latix
+  WHERE Issue_DateTime IS NOT NULL
+  GROUP BY 1
+"
+money <- dbGetQuery(con, sqlstr_money)
+money[money$Year == "2015",2] + money[money$Year == "2016",2]
+
+```
+* `$ 274242930` was collected on parking tickets in 2015 and 2016.
 
 0. Visualize any other information you are interested in.
