@@ -19,31 +19,48 @@ library(tidyverse)
 library(shiny)
 fluidPage()
 payroll <- read_csv("/home/m280-data/la_payroll/LA_City_Employee_Payroll.csv")
-TotPay <- payroll %>% 
+# Data set for question 1
+TotPay_wide <- payroll %>% 
   group_by(Year) %>%
   summarise(base = sum(as.numeric(gsub("\\$", "", `Base Pay`)), na.rm = TRUE),
             overtime = sum(as.numeric(gsub("\\$", "", `Overtime Pay`)), 
                            na.rm = TRUE),
-            other = sum(as.numeric(gsub("\\$", "", `Other Pay & Adjustments`)),
-                        na.rm = TRUE) + 
-                    sum(as.numeric(gsub("\\$", "", `Other Pay (Payroll Explorer)`
-                                        )), na.rm = TRUE))
-head(TotPay)
+            other = sum(as.numeric(gsub("\\$", "", `Other Pay (Payroll Explorer)`
+                                        )), na.rm = TRUE), 
+            total = sum(base, overtime, other)) 
+Totpay <- gather(TotPay_wide, class, payment, base:other, factor_key=TRUE)
+write_rds(TotPay, "totpay.rds")
+# Data set for question 2
+
+
+
 ```
 
 0. **Total payroll by LA City**. Visualize the total LA City payroll of each year, with breakdown into base pay, overtime pay, and other pay.
 
 ```{r}
+totpay <- readRDS("totpay.rds")
 ui <- fluidPage(
-  sliderInput("obs", "Number of observations:",
-    min = 0, max = 1000, value = 500
-  ),
-  plotOutput("distPlot")
+  plotOutput(outputId = "Totpay_plot")
 )
+server <- function(input, output) {
+  output$Totpay_plot <- renderPlot({
+    ggplot(data = q1_long, aes(x = Year, y = payment, fill = class)) +
+    geom_bar(stat="identity")
+  })
+}
+shinyApp(ui = ui, server = server)
 ```
 
 
 0. **Who earned most?** Visualize the payroll information (total payment with breakdown into base pay, overtime pay, and other pay, Department, Job Title) of the top $n$ highest paid LA City employees in a specific year. User specifies $n$ (default 10) and year (default 2017).
+```{r}
+numericInput("rows", "How many diamonds?", 5)
+
+renderTable({
+  head(diamonds, input$rows)
+})
+```
 
 0. **Which departments earn most?** Visualize the mean or median payroll, with breakdown into base pay, overtime pay, and other pay, of top $n$ earning departments. User specifies $n$ (default 5), year (default 2017), and method (mean or median, default median).
 
