@@ -19,13 +19,27 @@ library(tidyverse)
 library(shiny)
 fluidPage()
 payroll <- read_csv("/home/m280-data/la_payroll/LA_City_Employee_Payroll.csv")
-head(payroll)
+TotPay <- payroll %>% 
+  group_by(Year) %>%
+  summarise(base = sum(as.numeric(gsub("\\$", "", `Base Pay`)), na.rm = TRUE),
+            overtime = sum(as.numeric(gsub("\\$", "", `Overtime Pay`)), 
+                           na.rm = TRUE),
+            other = sum(as.numeric(gsub("\\$", "", `Other Pay & Adjustments`)),
+                        na.rm = TRUE) + 
+                    sum(as.numeric(gsub("\\$", "", `Other Pay (Payroll Explorer)`
+                                        )), na.rm = TRUE))
+head(TotPay)
 ```
 
 0. **Total payroll by LA City**. Visualize the total LA City payroll of each year, with breakdown into base pay, overtime pay, and other pay.
 
 ```{r}
-
+ui <- fluidPage(
+  sliderInput("obs", "Number of observations:",
+    min = 0, max = 1000, value = 500
+  ),
+  plotOutput("distPlot")
+)
 ```
 
 
