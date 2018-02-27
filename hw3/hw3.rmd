@@ -31,8 +31,11 @@ TotPay_wide <- payroll %>%
 Totpay <- gather(TotPay_wide, class, payment, base:other, factor_key=TRUE)
 write_rds(TotPay, "totpay.rds")
 # Data set for question 2
-
-
+highpay <- payroll %>% 
+select(Year,`Department Title`, `Job Class Title`, `Total Payments`, `Base Pay`, `Overtime Pay`,
+       `Other Pay (Payroll Explorer)`) %>% 
+  group_by(Year) %>% top_n(100, `Total Payments`)
+write_rds(highpay, "highpay.rds")
 
 ```
 
@@ -45,7 +48,7 @@ ui <- fluidPage(
 )
 server <- function(input, output) {
   output$Totpay_plot <- renderPlot({
-    ggplot(data = q1_long, aes(x = Year, y = payment, fill = class)) +
+    ggplot(data = totpay, aes(x = Year, y = payment, fill = class)) +
     geom_bar(stat="identity")
   })
 }
@@ -55,11 +58,19 @@ shinyApp(ui = ui, server = server)
 
 0. **Who earned most?** Visualize the payroll information (total payment with breakdown into base pay, overtime pay, and other pay, Department, Job Title) of the top $n$ highest paid LA City employees in a specific year. User specifies $n$ (default 10) and year (default 2017).
 ```{r}
-numericInput("rows", "How many diamonds?", 5)
-
-renderTable({
-  head(diamonds, input$rows)
-})
+ui <- fluidPage(
+  numericInput("rows", "How many top highest?", 10),
+  selectInput("year", "Which Year?", c("2013" = "2013", "2014" = "2014",
+                                       "2015" = "2015", "2016" = "2016",
+                                       "2017" = "2017")),
+  tableOutput(outputId = "high_pay")
+)
+server <- function(input, output) {
+  output$higy_pay <- renderTable({
+    head(q1, input$rows)
+  })
+}
+shinyApp(ui = ui, server = server)
 ```
 
 0. **Which departments earn most?** Visualize the mean or median payroll, with breakdown into base pay, overtime pay, and other pay, of top $n$ earning departments. User specifies $n$ (default 5), year (default 2017), and method (mean or median, default median).
