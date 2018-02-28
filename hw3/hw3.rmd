@@ -244,6 +244,16 @@ GROUP BY 1
 ORDER BY 2 DESC
 LIMIT  1;
 ```
+By another way: 
+```{r}
+latix_new %>% 
+  filter(!is.na(Issue_Year)) %>%
+  group_by(Issue_Year) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n)) %>%
+  head(1)
+
+```
 
 * `2015` has most of the data. 
 
@@ -384,8 +394,14 @@ nrow(color)
 
 0. What are the most common ticket types?
 ```{r}
-
+latix_new %>% 
+  filter(!is.na(Violation_Description)) %>%
+  group_by(Violation_Description) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n)) %>%
+  head(1)
 ```
+* The most common is "NO PARK/STREET CLEAN";
 
 0. How much money was collected on parking tickets in 2015 and 2016?
 ```{r}
