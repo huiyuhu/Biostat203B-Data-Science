@@ -19,7 +19,7 @@ library(tidyverse)
 library(shiny)
 fluidPage()
 payroll <- read_csv("/home/m280-data/la_payroll/LA_City_Employee_Payroll.csv")
-# Data set for question 1
+###### Data set for question 1 ######
 TotPay_wide <- payroll %>% 
   group_by(Year) %>%
   summarise(base = sum(as.numeric(gsub("\\$", "", `Base Pay`)), na.rm = TRUE),
@@ -31,41 +31,57 @@ TotPay_wide <- payroll %>%
 Totpay <- gather(TotPay_wide, class, payment, base:other, factor_key=TRUE)
 write_rds(TotPay, "totpay.rds")
 
-# Data set for question 2
+###### Data set for question 2 ######
 highpay <- payroll %>% 
-select(Year,`Department Title`, `Job Class Title`, `Total Payments`, `Base Pay`,
+select(Year, `Department Title`, `Job Class Title`, `Total Payments`, `Base Pay`,
        `Overtime Pay`,`Other Pay (Payroll Explorer)`) %>% 
-  group_by(Year) %>% arrange( desc( `Total Payments` ), by_group = T )
+  arrange(Year, desc(as.numeric(gsub("\\$", "", `Total Payments`)))) 
 write_rds(highpay, "highpay.rds")
 
-# Data set for question 3
+###### Data set for question 3 ######
 meanpay <- payroll %>%
   group_by(Year,`Department Title`) %>%
-  summarise(`Mean Base Pay` = mean(as.numeric(gsub("\\$", "", `Base Pay`)), 
+  summarise(`Mean Total Pay` =  mean(as.numeric(gsub("\\$", "",`Total Payments`)),
+                                    na.rm = TRUE),
+            `Mean Base Pay` = mean(as.numeric(gsub("\\$", "", `Base Pay`)), 
                                    na.rm = TRUE),
             `Mean Overtime Pay` = mean(as.numeric(gsub("\\$", "",`Overtime Pay`)),
                                        na.rm = TRUE),
             `Mean Other Pay` = mean(as.numeric(gsub("\\$", "", 
                                     `Other Pay (Payroll Explorer)`)),
-                                    na.rm = TRUE),
-            `Mean Total Pay` =  mean(as.numeric(gsub("\\$", "",`Total Payments`)),
                                     na.rm = TRUE)
-            ) %>% group_by(Year) %>%  arrange( desc( `Mean Total Pay` ), Year )
+            ) %>% arrange( Year, desc( `Mean Total Pay` ))
 write_rds(meanpay, "meanpay.rds")
 
 medpay <- payroll %>%
   group_by(`Department Title`, Year) %>%
-  summarise(`Median Base Pay` = median(as.numeric(gsub("\\$", "", `Base Pay`)), 
+  summarise(`Median Total Pay` =  median(as.numeric(gsub("\\$", "",`Total Payments`)),
+                                    na.rm = TRUE),
+            `Median Base Pay` = median(as.numeric(gsub("\\$", "", `Base Pay`)), 
                                    na.rm = TRUE),
             `Median Overtime Pay` = median(as.numeric(gsub("\\$", "",`Overtime Pay`)),
                                        na.rm = TRUE),
             `Median Other Pay` = median(as.numeric(gsub("\\$", "", 
                                     `Other Pay (Payroll Explorer)`)),
-                                    na.rm = TRUE),
-            `Median Total Pay` =  median(as.numeric(gsub("\\$", "",`Total Payments`)),
                                     na.rm = TRUE)
-            ) %>% group_by(Year) %>%  arrange( desc( `Median Total Pay` ), Year )
+            ) %>%  arrange( Year, desc( `Median Total Pay` ) )
 write_rds(medpay, "medpay.rds")
+
+###### Data set for question 4 ######
+cost <- payroll %>% 
+  group_by(Year,`Department Title`) %>%
+  summarise(`Total Pay` =  sum(as.numeric(gsub("\\$", "",`Total Payments`)),
+                                    na.rm = TRUE),
+            `Base Pay` = sum(as.numeric(gsub("\\$", "", `Base Pay`)), 
+                                   na.rm = TRUE),
+            `Overtime Pay` = sum(as.numeric(gsub("\\$", "",`Overtime Pay`)),
+                                       na.rm = TRUE),
+            `Other Pay` = sum(as.numeric(gsub("\\$", "", 
+                                    `Other Pay (Payroll Explorer)`)),
+                                     na.rm = TRUE),
+            `Total Cost` = sum(as.numeric(gsub("\\$", "", `Average Benefit Cost`)),
+                                       na.rm = TRUE)
+            ) %>% arrange( Year, desc( `Total Cost` )) %>% 
 
 ```
 
@@ -109,7 +125,7 @@ shinyApp(ui = ui, server = server)
 meanp <- readRDS("meanpay.rds")
 medp <- readRDS("medpay.rds")
 ui <- fluidPage(
-  numericInput("rows", "Choose number of row:", 10, min = 0, max = 20),
+  numericInput("rows", "Choose number of row:", 5, min = 0, max = 20),
   numericInput("year", "Choose a year:", 2017, min = 2013, max = 2017),
   radioButtons("method", "Choose a method:", c("Mean","Median"), "Median"),
   tableOutput(outputId = "mpay")
@@ -129,6 +145,9 @@ shinyApp(ui = ui, server = server)
 ```
 
 0. **Which departments cost most?** Visualize the total payroll, with breakdown into base pay, overtime pay, and other pay, of top $n$ expensive departments. User specifies $n$ (default 5) and year (default 2017).
+```{r}
+
+```
 
 0. Visualize any other information you are interested in.
 
