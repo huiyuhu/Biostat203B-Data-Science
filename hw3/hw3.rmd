@@ -82,7 +82,9 @@ cost <- payroll %>%
             `Total Cost` = sum(as.numeric(gsub("\\$", "", `Average Benefit Cost`)),
                                        na.rm = TRUE)
             ) %>% arrange( Year, desc( `Total Cost` )) %>% 
-
+            select(Year, `Department Title`, `Total Pay`, `Base Pay`, 
+                   `Overtime Pay`, `Other Pay`, `Total Cost`)
+write_rds(cost, "cost.rds")
 ```
 
 0. **Total payroll by LA City**. Visualize the total LA City payroll of each year, with breakdown into base pay, overtime pay, and other pay.
@@ -146,7 +148,21 @@ shinyApp(ui = ui, server = server)
 
 0. **Which departments cost most?** Visualize the total payroll, with breakdown into base pay, overtime pay, and other pay, of top $n$ expensive departments. User specifies $n$ (default 5) and year (default 2017).
 ```{r}
+ cost <- readRDS("cost.rds")
+ui <- fluidPage(
+  numericInput("rows", "Choose number of row:", 5, min = 0, max = 20),
+  numericInput("year", "Choose a year:", 2017, min = 2013, max = 2017),
 
+  tableOutput(outputId = "high_cost")
+)
+server <- function(input, output) {
+  output$high_cost <- renderTable({
+    cost %>% filter(Year == input$year) %>% 
+    head(input$rows)
+  })
+}
+
+shinyApp(ui = ui, server = server)
 ```
 
 0. Visualize any other information you are interested in.
