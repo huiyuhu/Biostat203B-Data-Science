@@ -34,7 +34,7 @@ write_rds(TotPay, "totpay.rds")
 highpay <- payroll %>% 
 select(Year,`Department Title`, `Job Class Title`, `Total Payments`, `Base Pay`, `Overtime Pay`,
        `Other Pay (Payroll Explorer)`) %>% 
-  group_by(Year) %>% top_n(100, `Total Payments`)
+  group_by(Year) %>% top_n(20, `Total Payments`)
 write_rds(highpay, "highpay.rds")
 
 ```
@@ -58,16 +58,18 @@ shinyApp(ui = ui, server = server)
 
 0. **Who earned most?** Visualize the payroll information (total payment with breakdown into base pay, overtime pay, and other pay, Department, Job Title) of the top $n$ highest paid LA City employees in a specific year. User specifies $n$ (default 10) and year (default 2017).
 ```{r}
+highp <- readRDS("highpay.rds")
 ui <- fluidPage(
-  numericInput("rows", "How many top highest?", 10),
-  selectInput("year", "Which Year?", c("2013" = "2013", "2014" = "2014",
+  numericInput("rows", "Choose number of row:", 10, min = 0, max = 20),
+  selectInput("year", "Choose a year:", c("2013" = "2013", "2014" = "2014",
                                        "2015" = "2015", "2016" = "2016",
                                        "2017" = "2017")),
   tableOutput(outputId = "high_pay")
 )
 server <- function(input, output) {
-  output$higy_pay <- renderTable({
-    head(q1, input$rows)
+  output$high_pay <- renderTable({
+    highp %>% filter(Year == input$year) %>% 
+    head(input$rows)
   })
 }
 shinyApp(ui = ui, server = server)
