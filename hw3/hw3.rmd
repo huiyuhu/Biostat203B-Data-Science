@@ -182,11 +182,17 @@ library("magrittr")
 
 #Connect
 con = dbConnect(RSQLite::SQLite(), "/home/m280-data/la_parking/LA_Parking_Citations.sqlite")
+newcon = dbConnect(RSQLite::SQLite(), "/home/m280-data/la_parking/LA_Parking_Citations_Extra.sqlite")
 str(con)
+str(newcon)
 dbListTables(con)
+dbListTables(newcon)
 latix_sql <- dplyr::tbl(con, "latix")
+latix_new <- dplyr::tbl(newcon, "latix")
 str(latix_sql)
+str(latix_new)
 knitr::opts_chunk$set(connection = "con")
+knitr::opts_chunk$set(connection = "newcon")
 ```
 
 
@@ -210,7 +216,20 @@ FROM latix;
 ```
 Another way to do this: 
 ```{r}
-
+maxtime <- latix_new %>% 
+  arrange(desc(Issue_Year), desc(Issue_Month), desc(Issue_Day), 
+          desc(Issue_Hour),  desc(Issue_Minute),na.rm=TRUE) %>%
+  head(1) %>%
+  select(Issue_Year, Issue_Month, Issue_Day, Issue_Hour, Issue_Minute) 
+maxtime  
+mintime <- latix_new %>% 
+  filter(!is.na(Issue_Year) && !is.na(Issue_Month) && !is.na(Issue_Day) &&
+        !is.na(Issue_Hour) && !is.na(Issue_Minute)) %>%
+  arrange(Issue_Year, Issue_Month, Issue_Day, 
+          Issue_Hour,  Issue_Minute, na.rm=TRUE) %>%
+  head(1) %>%
+  select(Issue_Year, Issue_Month, Issue_Day, Issue_Hour, Issue_Minute) 
+mintime   
 ```
 
 * The time period is `from 2010-04-27 21:40:00 UTC to 2017-12-30 01:41:00 UTC`.
