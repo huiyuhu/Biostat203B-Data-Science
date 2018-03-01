@@ -372,6 +372,15 @@ sqlstr_car <-
 "
 dbGetQuery(con, sqlstr_car) 
 ```
+* By another method: 
+```{r}
+latix_new %>%
+  filter(!is.na(Make)) %>%
+  group_by(Make) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n)) %>%
+  head(1)
+```
 * The `TOYOTA` received most citations.
 
 0. How many different colors of cars were ticketed? Which color attracted most tickets?
@@ -390,6 +399,7 @@ color[1,]
 nrow(color)
 
 ```
+
 * There are `65` different colors of cars were ticketedThe `Black` car attracted most tickets.
 
 0. What are the most common ticket types?
