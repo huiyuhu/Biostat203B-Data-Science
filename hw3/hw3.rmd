@@ -425,7 +425,7 @@ latix_new %>%
   arrange(desc(n)) %>%
   head(1)
 ```
-* The most common is "NO PARK/STREET CLEAN";
+* The most common is `NO PARK/STREET CLEAN`;
 
 0. How much money was collected on parking tickets in 2015 and 2016?
 ```{r}
@@ -439,17 +439,16 @@ sqlstr_money <-
 "
 money <- dbGetQuery(con, sqlstr_money)
 money[money$Year == "2015",2] + money[money$Year == "2016",2]
-
 ```
-* `$ 274242930` was collected on parking tickets in 2015 and 2016.
 
 Another solution by using dplyr. Unix Epoch 1420070400, and 1483228799 corresponds to 2015-01-01:00:00:00 and 2016-12-31:23:59:59 GMT, respectively.
 ```{r}
-latix_sql %>% 
-  select(Fine_amount, Issue_DateTime) %>%
-  filter(Issue_DateTime >= 1420070400, Issue_DateTime <= 1483228799) %>%
-  summarize(total = sum(Fine_amount), na.rm = TRUE)
+latix_new %>% 
+  select(Fine_amount, Issue_Year) %>%
+  filter(Issue_Year >= 2015, Issue_Year <= 2016,
+         !is.na(Fine_amount), !is.na(Issue_Year)) %>%
+  summarize(total = sum(Fine_amount, na.rm = TRUE))
 ```
-
+* `$ 274242930` was collected on parking tickets in 2015 and 2016.
 
 0. Visualize any other information you are interested in.
