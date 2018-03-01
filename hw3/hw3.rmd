@@ -399,8 +399,22 @@ color[1,]
 nrow(color)
 
 ```
+* By another way: 
+```{r}
+colordata <- latix_new %>%
+  filter(!is.na(Color)) %>%
+  group_by(Color) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n))
 
-* There are `65` different colors of cars were ticketedThe `Black` car attracted most tickets.
+colordata %>%
+  summarise(n = n())
+
+colordata %>%
+  head(1)
+```
+
+* There are `65` different colors of cars were ticketed. The `Black` car attracted most tickets.
 
 0. What are the most common ticket types?
 ```{r}
