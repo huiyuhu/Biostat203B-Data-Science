@@ -29,7 +29,7 @@ TotPay_wide <- payroll %>%
                                         )), na.rm = TRUE), 
             total = sum(base, overtime, other)) 
 Totpay <- gather(TotPay_wide, class, payment, base:other, factor_key=TRUE)
-write_rds(TotPay, "totpay.rds")
+write_rds(Totpay, "totpay.rds")
 
 ###### Data set for question 2 ######
 highpay <- payroll %>% 
@@ -114,7 +114,7 @@ ui <- fluidPage(
   tableOutput(outputId = "high_pay")
 )
 server <- function(input, output) {
-  output$high_pay <- renderTable({
+    output$high_pay <- renderTable({
     highp %>% filter(Year == input$year) %>% 
     head(input$rows)
   })
@@ -168,6 +168,73 @@ shinyApp(ui = ui, server = server)
 0. Visualize any other information you are interested in.
 
 0. Publish your Shiny app to <https://www.shinyapps.io> and share the link.
+
+summarize the result: 
+```{r}
+library(shinythemes)
+totpay <- readRDS("~/biostat-m280-2018-winter/hw3/totpay.rds")
+highp <- readRDS("~/biostat-m280-2018-winter/hw3/highpay.rds")
+meanp <- readRDS("~/biostat-m280-2018-winter/hw3/meanpay.rds")
+medp <- readRDS("~/biostat-m280-2018-winter/hw3/medpay.rds")
+cost <- readRDS("~/biostat-m280-2018-winter/hw3/cost.rds")
+ui <- navbarPage( theme = shinytheme("cerulean"),
+                  "LA City Employee Payroll",
+                   tabPanel("Total payroll by LA City",
+                            titlePanel("Total payroll by LA City"),
+                            plotOutput(outputId = "Totpay_plot")),
+                   tabPanel("Who earned most?",
+                            titlePanel("Who earned most?"),
+                            numericInput("rows", "Choose number of row:",
+                                         10, min = 0, max = 20),
+                            numericInput("year", "Choose a year:", 
+                                         2017, min = 2013, max = 2017),
+                            tableOutput(outputId = "high_pay")),
+                   tabPanel("Which departments earn most?",
+                            titlePanel("Which departments earn most?"),
+                            numericInput("rows1", "Choose number of row:",
+                                         5, min = 0, max = 20),
+                            numericInput("year1", "Choose a year:", 
+                                         2017, min = 2013, max = 2017),
+                            radioButtons("method", "Choose a method:", 
+                                         c("Mean","Median"), "Median"),
+                            tableOutput(outputId = "mpay")),
+                   tabPanel("Which departments cost most?",
+                            titlePanel("Which departments cost most?"),
+                            numericInput("rows2", "Choose number of row:", 5, min = 0, max = 20),
+                            numericInput("year2", "Choose a year:", 2017, min = 2013, max = 2017),
+                            tableOutput(outputId = "high_cost"))
+                )
+
+server <- function(input, output) {
+  
+  ##first question
+  output$Totpay_plot <- renderPlot({
+    ggplot(data = totpay, aes(x = Year, y = payment, fill = class)) +
+    geom_bar(stat="identity")
+    })
+  ##second question  
+  output$high_pay <- renderTable({
+    highp %>% filter(Year == input$year) %>% 
+    head(input$rows)
+  })
+  #Which departments earn most
+  output$mpay <- renderTable({
+    if (input$method == "Mean"){
+      meanp %>% filter(Year == input$year1) %>% 
+      head(input$rows1)
+    } else {
+      medp  %>% filter(Year == input$year1) %>% 
+      head(input$rows1)
+    }
+  })
+  ##Which departments cost most?
+  output$high_cost <- renderTable({
+    cost %>% filter(Year == input$year2) %>% 
+    head(input$rows2)
+  })
+}
+shinyApp(ui = ui, server = server)
+```
 
 ## Q2 LA City Parking War
 
