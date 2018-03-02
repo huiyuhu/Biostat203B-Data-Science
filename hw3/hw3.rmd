@@ -29,14 +29,14 @@ TotPay_wide <- payroll %>%
                                         )), na.rm = TRUE), 
             total = sum(base, overtime, other)) 
 Totpay <- gather(TotPay_wide, class, payment, base:other, factor_key=TRUE)
-write_rds(Totpay, "huiyuhuShiny/totpay.rds")
+write_rds(Totpay, "LAPayrolls/totpay.rds")
 
 ###### Data set for question 2 ######
 highpay <- payroll %>% 
 select(Year, `Department Title`, `Job Class Title`, `Total Payments`, `Base Pay`,
        `Overtime Pay`,`Other Pay (Payroll Explorer)`) %>% 
   arrange(Year, desc(as.numeric(gsub("\\$", "", `Total Payments`)))) 
-write_rds(highpay, "huiyuhuShiny/highpay.rds")
+write_rds(highpay, "LAPayrolls/highpay.rds")
 
 ###### Data set for question 3 ######
 meanpay <- payroll %>%
@@ -51,7 +51,7 @@ meanpay <- payroll %>%
                                     `Other Pay (Payroll Explorer)`)),
                                     na.rm = TRUE))
             ) %>% arrange( Year, desc( `Mean Total Pay` ))
-write_rds(meanpay, "huiyuhuShiny/meanpay.rds")
+write_rds(meanpay, "LAPayrolls/meanpay.rds")
 
 medpay <- payroll %>%
   group_by(`Department Title`, Year) %>%
@@ -65,7 +65,7 @@ medpay <- payroll %>%
                                     `Other Pay (Payroll Explorer)`)),
                                     na.rm = TRUE))
             ) %>%  arrange( Year, desc( `Median Total Pay` ) )
-write_rds(medpay, "huiyuhuShiny/medpay.rds")
+write_rds(medpay, "LAPayrolls/medpay.rds")
 
 ###### Data set for question 4 ######
 cost <- payroll %>% 
@@ -84,13 +84,13 @@ cost <- payroll %>%
             ) %>% arrange( Year, desc( `Total Cost` )) %>% 
             select(Year, `Department Title`, `Total Pay`, `Base Pay`, 
                    `Overtime Pay`, `Other Pay`, `Total Cost`)
-write_rds(cost, "huiyuhuShiny/cost.rds")
+write_rds(cost, "LAPayrolls/cost.rds")
 ```
 
 0. **Total payroll by LA City**. Visualize the total LA City payroll of each year, with breakdown into base pay, overtime pay, and other pay.
 
 ```{r}
-totpay <- readRDS("totpay.rds")
+totpay <- readRDS("LAPayrolls/totpay.rds")
 ui <- fluidPage(
   plotOutput(outputId = "Totpay_plot")
 )
@@ -106,7 +106,7 @@ shinyApp(ui = ui, server = server)
 
 0. **Who earned most?** Visualize the payroll information (total payment with breakdown into base pay, overtime pay, and other pay, Department, Job Title) of the top $n$ highest paid LA City employees in a specific year. User specifies $n$ (default 10) and year (default 2017).
 ```{r}
-highp <- readRDS("highpay.rds")
+highp <- readRDS("LAPayrolls/highpay.rds")
 ui <- fluidPage(
   titlePanel("Employees with Highest Earnings"),
   sidebarLayout(
@@ -132,8 +132,8 @@ shinyApp(ui = ui, server = server)
 
 0. **Which departments earn most?** Visualize the mean or median payroll, with breakdown into base pay, overtime pay, and other pay, of top $n$ earning departments. User specifies $n$ (default 5), year (default 2017), and method (mean or median, default median).
 ```{r}
-meanp <- readRDS("meanpay.rds")
-medp <- readRDS("medpay.rds")
+meanp <- readRDS("LAPayrolls/meanpay.rds")
+medp <- readRDS("LAPayrolls/medpay.rds")
 ui <- fluidPage(
   titlePanel("Payroll Mean and Median"),
   sidebarLayout(
@@ -164,7 +164,7 @@ shinyApp(ui = ui, server = server)
 
 0. **Which departments cost most?** Visualize the total payroll, with breakdown into base pay, overtime pay, and other pay, of top $n$ expensive departments. User specifies $n$ (default 5) and year (default 2017).
 ```{r}
- cost <- readRDS("cost.rds")
+ cost <- readRDS("LAPayrolls/cost.rds")
 ui <- fluidPage(
   titlePanel("Total Payroll"),
   sidebarLayout(
@@ -189,17 +189,20 @@ shinyApp(ui = ui, server = server)
 ```
 
 0. Visualize any other information you are interested in.
+```{r}
+
+```
 
 0. Publish your Shiny app to <https://www.shinyapps.io> and share the link.
-
+https://huiyuhu.shinyapps.io/LAPayrolls
 summarize the result: 
 ```{r}
 library(shinythemes)
-totpay <- readRDS("totpay.rds")
-highp <- readRDS("highpay.rds")
-meanp <- readRDS("meanpay.rds")
-medp <- readRDS("medpay.rds")
-cost <- readRDS("cost.rds")
+totpay <- readRDS("LAPayrolls/totpay.rds")
+highp <- readRDS("LAPayrolls/highpay.rds")
+meanp <- readRDS("LAPayrolls/meanpay.rds")
+medp <- readRDS("LAPayrolls/medpay.rds")
+cost <- readRDS("LAPayrolls/cost.rds")
 ui <- navbarPage( theme = shinytheme("cerulean"),
                   "LA City Employee Payroll",
                    tabPanel("Total payroll by LA City",
@@ -557,3 +560,13 @@ latix_new %>%
 * `$ 274242930` was collected on parking tickets in 2015 and 2016.
 
 0. Visualize any other information you are interested in.
+* which state plate is most common?
+```{r}
+latix_new %>% 
+  filter(!is.na(RP_State_Plate)) %>%
+  group_by(RP_State_Plate) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n)) %>%
+  head(1)
+```
+* `CA` plate attracted most tickets.
