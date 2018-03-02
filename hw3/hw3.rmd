@@ -314,7 +314,7 @@ latix_sql %>%
    summarise(n = n())
 ```
 
-* There are `4044488` tickets; and there are `4044338` tickets (distinct) in this data sets.
+* There are `4044488` tickets; after removing the NA data there are `4044338` tickets (distinct) in this data sets (since sql always removed the na data).
 
 ```{sql connection="con"}
 --SELECT MAX(Issue_DateTime) AS "Max Date", MIN(Issue_DateTime) AS "Min Date" FROM latix;
@@ -377,17 +377,13 @@ sqlstr_hour <-
 hour <- dbGetQuery(con, sqlstr_hour) 
 ggplot(hour, aes(Hour)) + geom_bar()
 
-sqlstr_hour1 <-   
-  "SELECT
-    strftime('%H', DATETIME(Issue_DateTime, 'unixepoch')) AS Hour,
-    COUNT(*) AS Number
-  FROM latix
-  WHERE Issue_DateTime IS NOT NULL
-  GROUP BY 1
-  ORDER BY 2
-"
-hour1 <- dbGetQuery(con, sqlstr_hour1) 
-hour1
+latix_new %>% 
+  select(Issue_Hour) %>%
+  filter(!is.na(Issue_Hour)) %>%
+  group_by(Issue_Hour) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n))
+
 ```
 * Based on the barchart above, it most likely to get a ticket at `12` and least likely to get a ticket at `5`. In addition, the summary of count can also confirm this result.
 
@@ -402,16 +398,12 @@ sqlstr_weekday <-
 weekday <- dbGetQuery(con, sqlstr_weekday) 
 ggplot(weekday, aes(Weekday)) + geom_bar()
 
-sqlstr_weekday1 <-   
-  "SELECT
-    strftime('%w', DATETIME(Issue_DateTime, 'unixepoch')) AS Weekday,
-    COUNT(*) AS Number
-  FROM latix
-  WHERE Issue_DateTime IS NOT NULL
-  GROUP BY 1
-  ORDER BY 2
-"
-weekday1 <- dbGetQuery(con, sqlstr_weekday1) 
+latix_new %>% 
+  select(Issue_Wday) %>%
+  filter(!is.na(Issue_Wday)) %>%
+  group_by(Issue_Wday) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n))
 
 ```
 * Based on the barchart above, it most likely to get a ticket on `Tuesday` and least likely to get a ticket on `Saturday`. In addition, the summary of count can also confirm this result.
@@ -427,17 +419,12 @@ sqlstr_mday <-
 mday <- dbGetQuery(con, sqlstr_mday) 
 ggplot(mday, aes(Mday)) + geom_bar()
 
-sqlstr_mday1 <-   
-  "SELECT
-    strftime('%d', DATETIME(Issue_DateTime, 'unixepoch')) AS Mday,
-    COUNT(*) AS Number
-  FROM latix
-  WHERE Issue_DateTime IS NOT NULL
-  GROUP BY 1
-  ORDER BY 2
-"
-mday1 <- dbGetQuery(con, sqlstr_mday1) 
-mday1
+latix_new %>% 
+  select(Issue_Day) %>%
+  filter(!is.na(Issue_Day)) %>%
+  group_by(Issue_Day) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n))
 ```
 * Based on the barchart above, it most likely to get a ticket on day `22` in a month and least likely to get a ticket on day `31` in a month. In addition, the summary of count can also confirm this result.
 
@@ -452,17 +439,12 @@ sqlstr_month <-
 month <- dbGetQuery(con, sqlstr_month) 
 ggplot(month, aes(Month)) + geom_bar()
 
-sqlstr_month1 <-   
-  "SELECT
-    strftime('%m', DATETIME(Issue_DateTime, 'unixepoch')) AS Month,
-    COUNT(*) AS Number
-  FROM latix
-  WHERE Issue_DateTime IS NOT NULL
-  GROUP BY 1
-  ORDER BY 2
-"
-month1 <- dbGetQuery(con, sqlstr_month1) 
-month1
+latix_new %>% 
+  select(Issue_Month) %>%
+  filter(!is.na(Issue_Month)) %>%
+  group_by(Issue_Month) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n))
 ```
 * Based on the barchart above, it most likely to get a ticket in `March` and least likely to get a ticket in `November`. In addition, the summary of count can also confirm this result.
 
