@@ -85,6 +85,14 @@ cost <- payroll %>%
             select(Year, `Department Title`, `Total Pay`, `Base Pay`, 
                    `Overtime Pay`, `Other Pay`, `Total Cost`)
 write_rds(cost, "LAPayrolls/cost.rds")
+
+#plan
+plan <- payroll %>%
+  filter(!is.na(`Benefits Plan`)) %>%
+  group_by(Year, `Benefits Plan`) %>%
+  summarise(n = n())
+write_rds(plan, "LAPayrolls/plan.rds")
+
 ```
 
 0. **Total payroll by LA City**. Visualize the total LA City payroll of each year, with breakdown into base pay, overtime pay, and other pay.
@@ -190,7 +198,22 @@ shinyApp(ui = ui, server = server)
 
 0. Visualize any other information you are interested in.
 ```{r}
+plan <- readRDS("LAPayrolls/plan.rds")
+ui <- fluidPage(
+  
+  plotOutput(outputId = "Plan_plot")
+)
+server <- function(input, output) {
+  output$Totpay_plot <- renderPlot({
+    ggplot(data = totpay, aes(x = Year, y = payment, fill = class)) +
+    geom_bar(stat="identity")
+  })
+}
+shinyApp(ui = ui, server = server)
 
+ggplot(dt, aes(x = "", y = A, fill = B)) + 
+  geom_bar(stat = "identity") + 
+  coord_polar(theta = "y")
 ```
 
 0. Publish your Shiny app to <https://www.shinyapps.io> and share the link.
@@ -203,6 +226,7 @@ highp <- readRDS("LAPayrolls/highpay.rds")
 meanp <- readRDS("LAPayrolls/meanpay.rds")
 medp <- readRDS("LAPayrolls/medpay.rds")
 cost <- readRDS("LAPayrolls/cost.rds")
+plan <- readRDS("LAPayrolls/plan.rds")
 ui <- navbarPage( theme = shinytheme("cerulean"),
                   "LA City Employee Payroll",
                    tabPanel("Total payroll by LA City",
