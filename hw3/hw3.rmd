@@ -41,46 +41,46 @@ write_rds(highpay, "LAPayrolls/highpay.rds")
 ###### Data set for question 3 ######
 meanpay <- payroll %>%
   group_by(Year,`Department Title`) %>%
-  summarise(`Mean Total Pay` =  paste0("$", mean(as.numeric(gsub("\\$", "",`Total Payments`)),
-                                    na.rm = TRUE)),
-            `Mean Base Pay` = paste0("$", mean(as.numeric(gsub("\\$", "", `Base Pay`)), 
-                                   na.rm = TRUE)),
-            `Mean Overtime Pay` = paste0("$", mean(as.numeric(gsub("\\$", "",`Overtime Pay`)),
-                                       na.rm = TRUE)),
-            `Mean Other Pay` = paste0("$", mean(as.numeric(gsub("\\$", "", 
+  summarise(`Mean Total Pay` =  mean(as.numeric(gsub("\\$", "",`Total Payments`)),
+                                    na.rm = TRUE),
+            `Mean Base Pay` = mean(as.numeric(gsub("\\$", "", `Base Pay`)), 
+                                   na.rm = TRUE),
+            `Mean Overtime Pay` = mean(as.numeric(gsub("\\$", "",`Overtime Pay`)),
+                                       na.rm = TRUE),
+            `Mean Other Pay` =  mean(as.numeric(gsub("\\$", "", 
                                     `Other Pay (Payroll Explorer)`)),
-                                    na.rm = TRUE))
+                                    na.rm = TRUE)
             ) %>% arrange( Year, desc( `Mean Total Pay` ))
 write_rds(meanpay, "LAPayrolls/meanpay.rds")
 
 medpay <- payroll %>%
   group_by(`Department Title`, Year) %>%
-  summarise(`Median Total Pay` =  paste0("$", median(as.numeric(gsub("\\$", "",`Total Payments`)),
-                                    na.rm = TRUE)),
-            `Median Base Pay` = paste0("$", median(as.numeric(gsub("\\$", "", `Base Pay`)), 
-                                   na.rm = TRUE)),
-            `Median Overtime Pay` = paste0("$", median(as.numeric(gsub("\\$", "",`Overtime Pay`)),
-                                       na.rm = TRUE)),
-            `Median Other Pay` = paste0("$", median(as.numeric(gsub("\\$", "", 
+  summarise(`Median Total Pay` =  median(as.numeric(gsub("\\$", "",`Total Payments`)),
+                                    na.rm = TRUE),
+            `Median Base Pay` = median(as.numeric(gsub("\\$", "", `Base Pay`)), 
+                                   na.rm = TRUE),
+            `Median Overtime Pay` = median(as.numeric(gsub("\\$", "",`Overtime Pay`)),
+                                       na.rm = TRUE),
+            `Median Other Pay` =  median(as.numeric(gsub("\\$", "", 
                                     `Other Pay (Payroll Explorer)`)),
-                                    na.rm = TRUE))
+                                    na.rm = TRUE)
             ) %>%  arrange( Year, desc( `Median Total Pay` ) )
 write_rds(medpay, "LAPayrolls/medpay.rds")
 
 ###### Data set for question 4 ######
 cost <- payroll %>% 
   group_by(Year,`Department Title`) %>%
-  summarise(`Total Pay` =  paste0("$", sum(as.numeric(gsub("\\$", "",`Total Payments`)),
-                                    na.rm = TRUE)),
-            `Base Pay` = paste0("$", sum(as.numeric(gsub("\\$", "", `Base Pay`)), 
-                                   na.rm = TRUE)),
-            `Overtime Pay` = paste0("$", sum(as.numeric(gsub("\\$", "",`Overtime Pay`)),
-                                       na.rm = TRUE)),
-            `Other Pay` = paste0("$", sum(as.numeric(gsub("\\$", "", 
+  summarise(`Total Pay` =  sum(as.numeric(gsub("\\$", "",`Total Payments`)),
+                                    na.rm = TRUE),
+            `Base Pay` = sum(as.numeric(gsub("\\$", "", `Base Pay`)), 
+                                   na.rm = TRUE),
+            `Overtime Pay` = sum(as.numeric(gsub("\\$", "",`Overtime Pay`)),
+                                       na.rm = TRUE),
+            `Other Pay` =  sum(as.numeric(gsub("\\$", "", 
                                     `Other Pay (Payroll Explorer)`)),
-                                     na.rm = TRUE)),
-            `Total Cost` = paste0("$", sum(as.numeric(gsub("\\$", "", `Average Benefit Cost`)),
-                                       na.rm = TRUE))
+                                     na.rm = TRUE),
+            `Total Cost` = sum(as.numeric(gsub("\\$", "", `Average Benefit Cost`)),
+                                       na.rm = TRUE)
             ) %>% arrange( Year, desc( `Total Cost` )) %>% 
             select(Year, `Department Title`, `Total Pay`, `Base Pay`, 
                    `Overtime Pay`, `Other Pay`, `Total Cost`)
