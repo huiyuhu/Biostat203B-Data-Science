@@ -111,8 +111,10 @@ library("lubridate")
 library("magrittr")
 
 #Connect
-con = dbConnect(RSQLite::SQLite(), "/home/m280-data/la_parking/LA_Parking_Citations.sqlite")
-newcon = dbConnect(RSQLite::SQLite(), "/home/m280-data/la_parking/LA_Parking_Citations_Extra.sqlite")
+con = dbConnect(RSQLite::SQLite(), 
+                "/home/m280-data/la_parking/LA_Parking_Citations.sqlite")
+newcon = dbConnect(RSQLite::SQLite(),
+                   "/home/m280-data/la_parking/LA_Parking_Citations_Extra.sqlite")
 str(con)
 str(newcon)
 dbListTables(con)
@@ -139,7 +141,6 @@ latix_sql %>%
 * There are `4044488` tickets; after removing the NA data there are `4044338` tickets (distinct) in this data sets (since sql always removed the na data).
 
 ```{sql connection="con"}
---SELECT MAX(Issue_DateTime) AS "Max Date", MIN(Issue_DateTime) AS "Min Date" FROM latix;
 SELECT DATETIME(MAX(Issue_DateTime), 'unixepoch') AS "Max TIME",
         DATETIME(MIN(Issue_DateTime), 'unixepoch') AS "Min TIME" 
 FROM latix;
@@ -372,5 +373,22 @@ latix_new %>%
   summarise(n = n()) %>%
   arrange(desc(n)) %>%
   head(1)
+
+plate_sql <- 
+  "SELECT 
+    RP_State_Plate AS RP_State_Plate,
+    COUNT(*) AS N
+  FROM latix
+  WHERE RP_State_Plate IS NOT NULL
+  GROUP BY 1
+  ORDER BY 2 DESC
+"
+plate <- dbGetQuery(con, plate_sql) 
+plate %>%
+  head(10) %>%
+  ggplot(aes(x = "", y = N, fill = RP_State_Plate)) +
+  geom_bar(stat = "identity") +
+  coord_polar(theta = "y")
 ```
+
 * `CA` plate attracted most tickets.
