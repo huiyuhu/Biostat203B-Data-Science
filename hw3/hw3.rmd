@@ -351,18 +351,24 @@ sqlstr_money <-
   GROUP BY 1
 "
 money <- dbGetQuery(con, sqlstr_money)
+money[money$Year == "2015",2]
+money[money$Year == "2016",2]
 money[money$Year == "2015",2] + money[money$Year == "2016",2]
 ```
 
 Another solution by using dplyr. Unix Epoch 1420070400, and 1483228799 corresponds to 2015-01-01:00:00:00 and 2016-12-31:23:59:59 GMT, respectively.
 ```{r}
-latix_new %>% 
+amount <- latix_new %>% 
   select(Fine_amount, Issue_Year) %>%
-  filter(Issue_Year >= 2015, Issue_Year <= 2016,
-         !is.na(Fine_amount), !is.na(Issue_Year)) %>%
+  filter(Issue_Year == 2015 || Issue_Year == 2016,
+         !is.na(Fine_amount), !is.na(Issue_Year))
+amount %>% 
+  group_by(Issue_Year) %>% 
+  summarise(amount = sum(Fine_amount, na.rm = T))
+amount %>% 
   summarize(total = sum(Fine_amount, na.rm = TRUE))
 ```
-* `$ 274242930` was collected on parking tickets in 2015 and 2016.
+* 2015: `$ 151006794`; 2016: `$ 123236136`; Total`$ 274242930` was collected on parking tickets in 2015 and 2016.
 
 0. Visualize any other information you are interested in.
 * which state plate is most common?

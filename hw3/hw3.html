@@ -272,7 +272,7 @@ str(con)</code></pre>
 ##   ..@ loadable.extensions: logi TRUE
 ##   ..@ flags              : int 70
 ##   ..@ vfs                : chr &quot;&quot;
-##   ..@ ref                :&lt;environment: 0xb48ed90&gt;</code></pre>
+##   ..@ ref                :&lt;environment: 0xa246c40&gt;</code></pre>
 <pre class="r"><code>str(newcon)</code></pre>
 <pre><code>## Formal class 'SQLiteConnection' [package &quot;RSQLite&quot;] with 6 slots
 ##   ..@ ptr                :&lt;externalptr&gt; 
@@ -280,7 +280,7 @@ str(con)</code></pre>
 ##   ..@ loadable.extensions: logi TRUE
 ##   ..@ flags              : int 70
 ##   ..@ vfs                : chr &quot;&quot;
-##   ..@ ref                :&lt;environment: 0xad38320&gt;</code></pre>
+##   ..@ ref                :&lt;environment: 0x9af01d0&gt;</code></pre>
 <pre class="r"><code>dbListTables(con)</code></pre>
 <pre><code>## [1] &quot;latix&quot;</code></pre>
 <pre class="r"><code>dbListTables(newcon)</code></pre>
@@ -296,7 +296,7 @@ str(latix_sql)</code></pre>
 ##   .. .. ..@ loadable.extensions: logi TRUE
 ##   .. .. ..@ flags              : int 70
 ##   .. .. ..@ vfs                : chr &quot;&quot;
-##   .. .. ..@ ref                :&lt;environment: 0xb48ed90&gt; 
+##   .. .. ..@ ref                :&lt;environment: 0xa246c40&gt; 
 ##   ..$ disco: NULL
 ##   ..- attr(*, &quot;class&quot;)= chr [1:3] &quot;src_dbi&quot; &quot;src_sql&quot; &quot;src&quot;
 ##  $ ops:List of 2
@@ -313,7 +313,7 @@ str(latix_sql)</code></pre>
 ##   .. .. ..@ loadable.extensions: logi TRUE
 ##   .. .. ..@ flags              : int 70
 ##   .. .. ..@ vfs                : chr &quot;&quot;
-##   .. .. ..@ ref                :&lt;environment: 0xad38320&gt; 
+##   .. .. ..@ ref                :&lt;environment: 0x9af01d0&gt; 
 ##   ..$ disco: NULL
 ##   ..- attr(*, &quot;class&quot;)= chr [1:3] &quot;src_dbi&quot; &quot;src_sql&quot; &quot;src&quot;
 ##  $ ops:List of 2
@@ -708,13 +708,28 @@ colordata %&gt;%
   GROUP BY 1
 &quot;
 money &lt;- dbGetQuery(con, sqlstr_money)
-money[money$Year == &quot;2015&quot;,2] + money[money$Year == &quot;2016&quot;,2]</code></pre>
+money[money$Year == &quot;2015&quot;,2]</code></pre>
+<pre><code>## [1] 151006794</code></pre>
+<pre class="r"><code>money[money$Year == &quot;2016&quot;,2]</code></pre>
+<pre><code>## [1] 123236136</code></pre>
+<pre class="r"><code>money[money$Year == &quot;2015&quot;,2] + money[money$Year == &quot;2016&quot;,2]</code></pre>
 <pre><code>## [1] 274242930</code></pre>
 <p>Another solution by using dplyr. Unix Epoch 1420070400, and 1483228799 corresponds to 2015-01-01:00:00:00 and 2016-12-31:23:59:59 GMT, respectively.</p>
-<pre class="r"><code>latix_new %&gt;% 
+<pre class="r"><code>amount &lt;- latix_new %&gt;% 
   select(Fine_amount, Issue_Year) %&gt;%
-  filter(Issue_Year &gt;= 2015, Issue_Year &lt;= 2016,
-         !is.na(Fine_amount), !is.na(Issue_Year)) %&gt;%
+  filter(Issue_Year == 2015 || Issue_Year == 2016,
+         !is.na(Fine_amount), !is.na(Issue_Year))
+amount %&gt;% 
+  group_by(Issue_Year) %&gt;% 
+  summarise(amount = sum(Fine_amount, na.rm = T))</code></pre>
+<pre><code>## # Source:   lazy query [?? x 2]
+## # Database: sqlite 3.19.3
+## #   [/home/m280-data/la_parking/LA_Parking_Citations_Extra.sqlite]
+##   Issue_Year    amount
+##        &lt;int&gt;     &lt;int&gt;
+## 1       2015 151006794
+## 2       2016 123236136</code></pre>
+<pre class="r"><code>amount %&gt;% 
   summarize(total = sum(Fine_amount, na.rm = TRUE))</code></pre>
 <pre><code>## # Source:   lazy query [?? x 1]
 ## # Database: sqlite 3.19.3
@@ -723,7 +738,7 @@ money[money$Year == &quot;2015&quot;,2] + money[money$Year == &quot;2016&quot;,2
 ##       &lt;int&gt;
 ## 1 274242930</code></pre>
 <ul>
-<li><code>$ 274242930</code> was collected on parking tickets in 2015 and 2016.</li>
+<li>2015: <code>$ 151006794</code>; 2016: <code>$ 123236136</code>; Total<code>$ 274242930</code> was collected on parking tickets in 2015 and 2016.</li>
 </ul>
 <ol start="0" style="list-style-type: decimal">
 <li>Visualize any other information you are interested in.</li>
