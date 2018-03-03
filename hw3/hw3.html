@@ -131,12 +131,12 @@ $(document).ready(function () {
 </ol>
 <pre class="r"><code>##prepare:
 library(tidyverse)</code></pre>
-<pre><code>## ── Attaching packages ────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
 <pre><code>## ✔ ggplot2 2.2.1     ✔ purrr   0.2.4
 ## ✔ tibble  1.4.2     ✔ dplyr   0.7.4
 ## ✔ tidyr   0.8.0     ✔ stringr 1.2.0
 ## ✔ readr   1.1.1     ✔ forcats 0.2.0</code></pre>
-<pre><code>## ── Conflicts ───────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+<pre><code>## ── Conflicts ────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()</code></pre>
 <pre class="r"><code>library(shiny)
@@ -182,232 +182,61 @@ write_rds(highpay, &quot;LAPayrolls/highpay.rds&quot;)
 ###### Data set for question 3 ######
 meanpay &lt;- payroll %&gt;%
   group_by(Year,`Department Title`) %&gt;%
-  summarise(`Mean Total Pay` =  paste0(&quot;$&quot;, mean(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;,`Total Payments`)),
-                                    na.rm = TRUE)),
-            `Mean Base Pay` = paste0(&quot;$&quot;, mean(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;, `Base Pay`)), 
-                                   na.rm = TRUE)),
-            `Mean Overtime Pay` = paste0(&quot;$&quot;, mean(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;,`Overtime Pay`)),
-                                       na.rm = TRUE)),
-            `Mean Other Pay` = paste0(&quot;$&quot;, mean(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;, 
+  summarise(`Mean Total Pay` =  mean(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;,`Total Payments`)),
+                                    na.rm = TRUE),
+            `Mean Base Pay` = mean(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;, `Base Pay`)), 
+                                   na.rm = TRUE),
+            `Mean Overtime Pay` = mean(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;,`Overtime Pay`)),
+                                       na.rm = TRUE),
+            `Mean Other Pay` =  mean(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;, 
                                     `Other Pay (Payroll Explorer)`)),
-                                    na.rm = TRUE))
+                                    na.rm = TRUE)
             ) %&gt;% arrange( Year, desc( `Mean Total Pay` ))
 write_rds(meanpay, &quot;LAPayrolls/meanpay.rds&quot;)
 
 medpay &lt;- payroll %&gt;%
   group_by(`Department Title`, Year) %&gt;%
-  summarise(`Median Total Pay` =  paste0(&quot;$&quot;, median(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;,`Total Payments`)),
-                                    na.rm = TRUE)),
-            `Median Base Pay` = paste0(&quot;$&quot;, median(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;, `Base Pay`)), 
-                                   na.rm = TRUE)),
-            `Median Overtime Pay` = paste0(&quot;$&quot;, median(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;,`Overtime Pay`)),
-                                       na.rm = TRUE)),
-            `Median Other Pay` = paste0(&quot;$&quot;, median(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;, 
+  summarise(`Median Total Pay` =  median(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;,`Total Payments`)),
+                                    na.rm = TRUE),
+            `Median Base Pay` = median(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;, `Base Pay`)), 
+                                   na.rm = TRUE),
+            `Median Overtime Pay` = median(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;,`Overtime Pay`)),
+                                       na.rm = TRUE),
+            `Median Other Pay` =  median(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;, 
                                     `Other Pay (Payroll Explorer)`)),
-                                    na.rm = TRUE))
+                                    na.rm = TRUE)
             ) %&gt;%  arrange( Year, desc( `Median Total Pay` ) )
 write_rds(medpay, &quot;LAPayrolls/medpay.rds&quot;)
 
 ###### Data set for question 4 ######
 cost &lt;- payroll %&gt;% 
   group_by(Year,`Department Title`) %&gt;%
-  summarise(`Total Pay` =  paste0(&quot;$&quot;, sum(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;,`Total Payments`)),
-                                    na.rm = TRUE)),
-            `Base Pay` = paste0(&quot;$&quot;, sum(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;, `Base Pay`)), 
-                                   na.rm = TRUE)),
-            `Overtime Pay` = paste0(&quot;$&quot;, sum(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;,`Overtime Pay`)),
-                                       na.rm = TRUE)),
-            `Other Pay` = paste0(&quot;$&quot;, sum(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;, 
+  summarise(`Total Pay` =  sum(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;,`Total Payments`)),
+                                    na.rm = TRUE),
+            `Base Pay` = sum(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;, `Base Pay`)), 
+                                   na.rm = TRUE),
+            `Overtime Pay` = sum(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;,`Overtime Pay`)),
+                                       na.rm = TRUE),
+            `Other Pay` =  sum(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;, 
                                     `Other Pay (Payroll Explorer)`)),
-                                     na.rm = TRUE)),
-            `Total Cost` = paste0(&quot;$&quot;, sum(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;, `Average Benefit Cost`)),
-                                       na.rm = TRUE))
+                                     na.rm = TRUE),
+            `Total Cost` = sum(as.numeric(gsub(&quot;\\$&quot;, &quot;&quot;, `Average Benefit Cost`)),
+                                       na.rm = TRUE)
             ) %&gt;% arrange( Year, desc( `Total Cost` )) %&gt;% 
             select(Year, `Department Title`, `Total Pay`, `Base Pay`, 
                    `Overtime Pay`, `Other Pay`, `Total Cost`)
-write_rds(cost, &quot;LAPayrolls/cost.rds&quot;)</code></pre>
-<ol start="0" style="list-style-type: decimal">
-<li><strong>Total payroll by LA City</strong>. Visualize the total LA City payroll of each year, with breakdown into base pay, overtime pay, and other pay.</li>
-</ol>
-<pre class="r"><code>totpay &lt;- readRDS(&quot;LAPayrolls/totpay.rds&quot;)
-ui &lt;- fluidPage(
-  plotOutput(outputId = &quot;Totpay_plot&quot;)
-)
-server &lt;- function(input, output) {
-  output$Totpay_plot &lt;- renderPlot({
-    ggplot(data = totpay, aes(x = Year, y = payment, fill = class)) +
-    geom_bar(stat=&quot;identity&quot;)
-  })
-}
-shinyApp(ui = ui, server = server)</code></pre>
-<div style="width: 100% ; height: 400px ; text-align: center; box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box;" class="muted well">Shiny applications not supported in static R Markdown documents</div>
-<ol start="0" style="list-style-type: decimal">
-<li><strong>Who earned most?</strong> Visualize the payroll information (total payment with breakdown into base pay, overtime pay, and other pay, Department, Job Title) of the top <span class="math inline">\(n\)</span> highest paid LA City employees in a specific year. User specifies <span class="math inline">\(n\)</span> (default 10) and year (default 2017).</li>
-</ol>
-<pre class="r"><code>highp &lt;- readRDS(&quot;LAPayrolls/highpay.rds&quot;)
-ui &lt;- fluidPage(
-  titlePanel(&quot;Employees with Highest Earnings&quot;),
-  sidebarLayout(
-    sidebarPanel(
-      numericInput(&quot;rows&quot;, &quot;Choose number of row:&quot;, 10, min = 0, max = 20),
-      numericInput(&quot;year&quot;, &quot;Choose a year:&quot;, 2017, min = 2013, max = 2017)
-      ),
-    
-    mainPanel(
-      tableOutput(outputId = &quot;high_pay&quot;)
-    )
-  )
-)
+write_rds(cost, &quot;LAPayrolls/cost.rds&quot;)
 
-server &lt;- function(input, output) {
-    output$high_pay &lt;- renderTable({
-    highp %&gt;% filter(Year == input$year) %&gt;% 
-    head(input$rows)
-  })
-}
-shinyApp(ui = ui, server = server)</code></pre>
-<div style="width: 100% ; height: 400px ; text-align: center; box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box;" class="muted well">Shiny applications not supported in static R Markdown documents</div>
+#plan
+plan &lt;- payroll %&gt;%
+  filter(!is.na(`Benefits Plan`)) %&gt;%
+  group_by(Year, `Benefits Plan`) %&gt;%
+  summarise(n = n())
+write_rds(plan, &quot;LAPayrolls/plan.rds&quot;)</code></pre>
 <ol start="0" style="list-style-type: decimal">
-<li><strong>Which departments earn most?</strong> Visualize the mean or median payroll, with breakdown into base pay, overtime pay, and other pay, of top <span class="math inline">\(n\)</span> earning departments. User specifies <span class="math inline">\(n\)</span> (default 5), year (default 2017), and method (mean or median, default median).</li>
+<li>Publish your Shiny app to <a href="https://www.shinyapps.io" class="uri">https://www.shinyapps.io</a> and share the link.</li>
 </ol>
-<pre class="r"><code>meanp &lt;- readRDS(&quot;LAPayrolls/meanpay.rds&quot;)
-medp &lt;- readRDS(&quot;LAPayrolls/medpay.rds&quot;)
-ui &lt;- fluidPage(
-  titlePanel(&quot;Payroll Mean and Median&quot;),
-  sidebarLayout(
-    sidebarPanel(
-      numericInput(&quot;rows&quot;, &quot;Choose number of row:&quot;, 5, min = 0, max = 20),
-      numericInput(&quot;year&quot;, &quot;Choose a year:&quot;, 2017, min = 2013, max = 2017),
-      radioButtons(&quot;method&quot;, &quot;Choose a method:&quot;, c(&quot;Mean&quot;,&quot;Median&quot;), &quot;Median&quot;)
-    ),
-  
-    mainPanel(
-      tableOutput(outputId = &quot;mpay&quot;)  
-    )
-  )
-)
-server &lt;- function(input, output) {
-  output$mpay &lt;- renderTable({
-    if (input$method == &quot;Mean&quot;){
-      meanp %&gt;% filter(Year == input$year) %&gt;% 
-      head(input$rows)
-    } else {
-      medp  %&gt;% filter(Year == input$year) %&gt;% 
-      head(input$rows)
-    }
-  })
-}
-shinyApp(ui = ui, server = server)</code></pre>
-<div style="width: 100% ; height: 400px ; text-align: center; box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box;" class="muted well">Shiny applications not supported in static R Markdown documents</div>
-<ol start="0" style="list-style-type: decimal">
-<li><strong>Which departments cost most?</strong> Visualize the total payroll, with breakdown into base pay, overtime pay, and other pay, of top <span class="math inline">\(n\)</span> expensive departments. User specifies <span class="math inline">\(n\)</span> (default 5) and year (default 2017).</li>
-</ol>
-<pre class="r"><code> cost &lt;- readRDS(&quot;LAPayrolls/cost.rds&quot;)
-ui &lt;- fluidPage(
-  titlePanel(&quot;Total Payroll&quot;),
-  sidebarLayout(
-    sidebarPanel(
-      numericInput(&quot;rows&quot;, &quot;Choose number of row:&quot;, 5, min = 0, max = 20),
-      numericInput(&quot;year&quot;, &quot;Choose a year:&quot;, 2017, min = 2013, max = 2017)
-    ),
-
-    mainPanel(
-      tableOutput(outputId = &quot;high_cost&quot;)  
-    )
-  )
-)
-server &lt;- function(input, output) {
-  output$high_cost &lt;- renderTable({
-    cost %&gt;% filter(Year == input$year) %&gt;% 
-    head(input$rows)
-  })
-}
-
-shinyApp(ui = ui, server = server)</code></pre>
-<div style="width: 100% ; height: 400px ; text-align: center; box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box;" class="muted well">Shiny applications not supported in static R Markdown documents</div>
-<ol start="0" style="list-style-type: decimal">
-<li><p>Visualize any other information you are interested in.</p></li>
-<li><p>Publish your Shiny app to <a href="https://www.shinyapps.io" class="uri">https://www.shinyapps.io</a> and share the link. <a href="https://huiyuhu.shinyapps.io/LAPayrolls" class="uri">https://huiyuhu.shinyapps.io/LAPayrolls</a> summarize the result:</p></li>
-</ol>
-<pre class="r"><code>library(shinythemes)
-totpay &lt;- readRDS(&quot;LAPayrolls/totpay.rds&quot;)
-highp &lt;- readRDS(&quot;LAPayrolls/highpay.rds&quot;)
-meanp &lt;- readRDS(&quot;LAPayrolls/meanpay.rds&quot;)
-medp &lt;- readRDS(&quot;LAPayrolls/medpay.rds&quot;)
-cost &lt;- readRDS(&quot;LAPayrolls/cost.rds&quot;)
-ui &lt;- navbarPage( theme = shinytheme(&quot;cerulean&quot;),
-                  &quot;LA City Employee Payroll&quot;,
-                   tabPanel(&quot;Total payroll by LA City&quot;,
-                            titlePanel(&quot;Total payroll by LA City&quot;),
-                            plotOutput(outputId = &quot;Totpay_plot&quot;)),
-                   tabPanel(&quot;Who earned most?&quot;,
-                            titlePanel(&quot;Who earned most?&quot;),
-                            sidebarLayout(
-                              sidebarPanel(
-                                numericInput(&quot;rows&quot;, &quot;Choose number of row:&quot;,
-                                         10, min = 0, max = 20),
-                                numericInput(&quot;year&quot;, &quot;Choose a year:&quot;, 
-                                         2017, min = 2013, max = 2017)
-                              ),
-                              
-                              mainPanel(tableOutput(outputId = &quot;high_pay&quot;))
-                            )),
-                   tabPanel(&quot;Which departments earn most?&quot;,
-                            titlePanel(&quot;Which departments earn most?&quot;),
-                            sidebarLayout(
-                              sidebarPanel(
-                                numericInput(&quot;rows1&quot;, &quot;Choose number of row:&quot;,
-                                             5, min = 0, max = 20),
-                                numericInput(&quot;year1&quot;, &quot;Choose a year:&quot;, 
-                                             2017, min = 2013, max = 2017),
-                                radioButtons(&quot;method&quot;, &quot;Choose a method:&quot;, 
-                                             c(&quot;Mean&quot;,&quot;Median&quot;), &quot;Median&quot;)
-                              ),
-                              
-                              mainPanel(tableOutput(outputId = &quot;mpay&quot;))
-                            )),
-                   tabPanel(&quot;Which departments cost most?&quot;,
-                            titlePanel(&quot;Which departments cost most?&quot;),
-                            sidebarLayout(
-                              sidebarPanel(
-                                numericInput(&quot;rows2&quot;, &quot;Choose number of row:&quot;, 5, min = 0, max = 20),
-                                numericInput(&quot;year2&quot;, &quot;Choose a year:&quot;, 2017, min = 2013, max = 2017)
-                              ),
-                            
-                            mainPanel(tableOutput(outputId = &quot;high_cost&quot;))
-                            ))
-                )
-
-server &lt;- function(input, output) {
-  
-  ##first question
-  output$Totpay_plot &lt;- renderPlot({
-    ggplot(data = totpay, aes(x = Year, y = payment, fill = class)) +
-    geom_bar(stat=&quot;identity&quot;)
-    })
-  ##second question  
-  output$high_pay &lt;- renderTable({
-    highp %&gt;% filter(Year == input$year) %&gt;% 
-    head(input$rows)
-  })
-  #Which departments earn most
-  output$mpay &lt;- renderTable({
-    if (input$method == &quot;Mean&quot;){
-      meanp %&gt;% filter(Year == input$year1) %&gt;% 
-      head(input$rows1)
-    } else {
-      medp  %&gt;% filter(Year == input$year1) %&gt;% 
-      head(input$rows1)
-    }
-  })
-  ##Which departments cost most?
-  output$high_cost &lt;- renderTable({
-    cost %&gt;% filter(Year == input$year2) %&gt;% 
-    head(input$rows2)
-  })
-}
-shinyApp(ui = ui, server = server)</code></pre>
-<div style="width: 100% ; height: 400px ; text-align: center; box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box;" class="muted well">Shiny applications not supported in static R Markdown documents</div>
+<p>The link is <a href="https://huiyuhu.shinyapps.io/LAPayrolls" class="uri">https://huiyuhu.shinyapps.io/LAPayrolls</a>. The first four tabs corresponds the four questions. The last tab shows the distribution of the health plans for each year.</p>
 </div>
 <div id="q2-la-city-parking-war" class="section level2">
 <h2>Q2 LA City Parking War</h2>
@@ -441,7 +270,7 @@ str(con)</code></pre>
 ##   ..@ loadable.extensions: logi TRUE
 ##   ..@ flags              : int 70
 ##   ..@ vfs                : chr &quot;&quot;
-##   ..@ ref                :&lt;environment: 0x1ce00bd0&gt;</code></pre>
+##   ..@ ref                :&lt;environment: 0xbb30f60&gt;</code></pre>
 <pre class="r"><code>str(newcon)</code></pre>
 <pre><code>## Formal class 'SQLiteConnection' [package &quot;RSQLite&quot;] with 6 slots
 ##   ..@ ptr                :&lt;externalptr&gt; 
@@ -449,7 +278,7 @@ str(con)</code></pre>
 ##   ..@ loadable.extensions: logi TRUE
 ##   ..@ flags              : int 70
 ##   ..@ vfs                : chr &quot;&quot;
-##   ..@ ref                :&lt;environment: 0x1f7c6418&gt;</code></pre>
+##   ..@ ref                :&lt;environment: 0xb3db458&gt;</code></pre>
 <pre class="r"><code>dbListTables(con)</code></pre>
 <pre><code>## [1] &quot;latix&quot;</code></pre>
 <pre class="r"><code>dbListTables(newcon)</code></pre>
@@ -465,7 +294,7 @@ str(latix_sql)</code></pre>
 ##   .. .. ..@ loadable.extensions: logi TRUE
 ##   .. .. ..@ flags              : int 70
 ##   .. .. ..@ vfs                : chr &quot;&quot;
-##   .. .. ..@ ref                :&lt;environment: 0x1ce00bd0&gt; 
+##   .. .. ..@ ref                :&lt;environment: 0xbb30f60&gt; 
 ##   ..$ disco: NULL
 ##   ..- attr(*, &quot;class&quot;)= chr [1:3] &quot;src_dbi&quot; &quot;src_sql&quot; &quot;src&quot;
 ##  $ ops:List of 2
@@ -482,7 +311,7 @@ str(latix_sql)</code></pre>
 ##   .. .. ..@ loadable.extensions: logi TRUE
 ##   .. .. ..@ flags              : int 70
 ##   .. .. ..@ vfs                : chr &quot;&quot;
-##   .. .. ..@ ref                :&lt;environment: 0x1f7c6418&gt; 
+##   .. .. ..@ ref                :&lt;environment: 0xb3db458&gt; 
 ##   ..$ disco: NULL
 ##   ..- attr(*, &quot;class&quot;)= chr [1:3] &quot;src_dbi&quot; &quot;src_sql&quot; &quot;src&quot;
 ##  $ ops:List of 2
