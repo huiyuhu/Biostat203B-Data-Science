@@ -1,0 +1,400 @@
+---
+title: "Biostat M280 Homework 3"
+subtitle: Due Mar 3 @ 11:59PM
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Q1 LA City Employee Payroll
+
+The `/home/m280-data/la_payroll/LA_City_Employee_Payroll.csv` file on teaching server contains payroll information of LA City employees in years 2013-2017. It was downloaded from [LA City Controller's Office](https://controllerdata.lacity.org/Payroll/City-Employee-Payroll/pazn-qyym). Make a Shiny app to facilitate exploratory data analysis. 
+
+1. For efficiency of the Shiny app, you should first pre-process, pare down, tidy, and save the data, e.g., as a compressed RDS file, to be used in the app.
+```{r}
+##prepare:
+library(tidyverse)
+library(shiny)
+fluidPage()
+payroll <- read_csv("/home/m280-data/la_payroll/LA_City_Employee_Payroll.csv")
+###### Data set for question 1 ######
+TotPay_wide <- payroll %>% 
+  group_by(Year) %>%
+  summarise(base = sum(as.numeric(gsub("\\$", "", `Base Pay`)), na.rm = TRUE),
+            overtime = sum(as.numeric(gsub("\\$", "", `Overtime Pay`)), 
+                           na.rm = TRUE),
+            other = sum(as.numeric(gsub("\\$", "", `Other Pay (Payroll Explorer)`
+                                        )), na.rm = TRUE), 
+            total = sum(base, overtime, other)) 
+Totpay <- gather(TotPay_wide, class, payment, base:other, factor_key=TRUE)
+write_rds(Totpay, "LAPayrolls/totpay.rds")
+
+###### Data set for question 2 ######
+highpay <- payroll %>% 
+select(Year, `Department Title`, `Job Class Title`, `Total Payments`, `Base Pay`,
+       `Overtime Pay`,`Other Pay (Payroll Explorer)`) %>% 
+  arrange(Year, desc(as.numeric(gsub("\\$", "", `Total Payments`)))) 
+write_rds(highpay, "LAPayrolls/highpay.rds")
+
+###### Data set for question 3 ######
+meanpay <- payroll %>%
+  group_by(Year,`Department Title`) %>%
+  summarise(`Mean Total Pay` =  mean(as.numeric(gsub("\\$", "",`Total Payments`)),
+                                    na.rm = TRUE),
+            `Mean Base Pay` = mean(as.numeric(gsub("\\$", "", `Base Pay`)), 
+                                   na.rm = TRUE),
+            `Mean Overtime Pay` = mean(as.numeric(gsub("\\$", "",`Overtime Pay`)),
+                                       na.rm = TRUE),
+            `Mean Other Pay` =  mean(as.numeric(gsub("\\$", "", 
+                                    `Other Pay (Payroll Explorer)`)),
+                                    na.rm = TRUE)
+            ) %>% arrange( Year, desc( `Mean Total Pay` ))
+write_rds(meanpay, "LAPayrolls/meanpay.rds")
+
+medpay <- payroll %>%
+  group_by(`Department Title`, Year) %>%
+  summarise(`Median Total Pay` =  median(as.numeric(gsub("\\$", "",`Total Payments`)),
+                                    na.rm = TRUE),
+            `Median Base Pay` = median(as.numeric(gsub("\\$", "", `Base Pay`)), 
+                                   na.rm = TRUE),
+            `Median Overtime Pay` = median(as.numeric(gsub("\\$", "",`Overtime Pay`)),
+                                       na.rm = TRUE),
+            `Median Other Pay` =  median(as.numeric(gsub("\\$", "", 
+                                    `Other Pay (Payroll Explorer)`)),
+                                    na.rm = TRUE)
+            ) %>%  arrange( Year, desc( `Median Total Pay` ) )
+write_rds(medpay, "LAPayrolls/medpay.rds")
+
+###### Data set for question 4 ######
+cost <- payroll %>% 
+  group_by(Year,`Department Title`) %>%
+  summarise(`Total Pay` =  sum(as.numeric(gsub("\\$", "",`Total Payments`)),
+                                    na.rm = TRUE),
+            `Base Pay` = sum(as.numeric(gsub("\\$", "", `Base Pay`)), 
+                                   na.rm = TRUE),
+            `Overtime Pay` = sum(as.numeric(gsub("\\$", "",`Overtime Pay`)),
+                                       na.rm = TRUE),
+            `Other Pay` =  sum(as.numeric(gsub("\\$", "", 
+                                    `Other Pay (Payroll Explorer)`)),
+                                     na.rm = TRUE),
+            `Total Cost` = sum(as.numeric(gsub("\\$", "", `Average Benefit Cost`)),
+                                       na.rm = TRUE)
+            ) %>% arrange( Year, desc( `Total Cost` )) %>% 
+            select(Year, `Department Title`, `Total Pay`, `Base Pay`, 
+                   `Overtime Pay`, `Other Pay`, `Total Cost`)
+write_rds(cost, "LAPayrolls/cost.rds")
+
+#plan
+plan <- payroll %>%
+  filter(!is.na(`Benefits Plan`)) %>%
+  group_by(Year, `Benefits Plan`) %>%
+  summarise(n = n())
+write_rds(plan, "LAPayrolls/plan.rds")
+
+```
+
+0. Publish your Shiny app to <https://www.shinyapps.io> and share the link.
+
+The link is https://huiyuhu.shinyapps.io/LAPayrolls. The first four tabs corresponds the four questions. The last tab shows the distribution of the health plans for each year.
+
+## Q2 LA City Parking War
+
+The SQLite database `/home/m280-data/la_parking/LA_Parking_Citations.sqlite` on teaching server contains information about parking tickets in LA City. It was downloaded from [LA Open Data Portal](https://data.lacity.org/A-Well-Run-City/Parking-Citations/wjz9-h9np). Connect to the database and answer following questions using plots and summary statistics. In this exercise, you are **not** allowed to load whole data into memory. Use the _transform in database, plot in R_ strategy.
+```{r}
+#Prepare
+library("DBI")
+library("RSQLite")
+library("tidyverse")
+library("lubridate")
+library("magrittr")
+
+#Connect
+con = dbConnect(RSQLite::SQLite(), 
+                "/home/m280-data/la_parking/LA_Parking_Citations.sqlite")
+newcon = dbConnect(RSQLite::SQLite(),
+                   "/home/m280-data/la_parking/LA_Parking_Citations_Extra.sqlite")
+str(con)
+str(newcon)
+dbListTables(con)
+dbListTables(newcon)
+latix_sql <- dplyr::tbl(con, "latix")
+latix_new <- dplyr::tbl(newcon, "latix")
+str(latix_sql)
+str(latix_new)
+knitr::opts_chunk$set(connection = "con")
+knitr::opts_chunk$set(connection = "newcon")
+```
+
+
+1. How many tickets are in this data set? Which time period do these tickets span? Which years have most data?
+```{sql connection="con"}
+SELECT COUNT(DISTINCT Ticket_number) AS tick_num FROM latix;
+```
+Another way to do this: 
+```{r}
+latix_sql %>% 
+   summarise(n = n())
+```
+
+* There are `4044488` tickets; after removing the NA data there are `4044338` tickets (distinct) in this data sets (since sql always removed the na data).
+
+```{sql connection="con"}
+SELECT DATETIME(MAX(Issue_DateTime), 'unixepoch') AS "Max TIME",
+        DATETIME(MIN(Issue_DateTime), 'unixepoch') AS "Min TIME" 
+FROM latix;
+```
+Another way to do this: 
+```{r}
+maxtime <- latix_new %>% 
+  arrange(desc(Issue_Year), desc(Issue_Month), desc(Issue_Day), 
+          desc(Issue_Hour),  desc(Issue_Minute),na.rm=TRUE) %>%
+  head(1) %>%
+  select(Issue_Year, Issue_Month, Issue_Day, Issue_Hour, Issue_Minute) 
+maxtime  
+mintime <- latix_new %>% 
+  filter(!is.na(Issue_Year) && !is.na(Issue_Month) && !is.na(Issue_Day) &&
+        !is.na(Issue_Hour) && !is.na(Issue_Minute)) %>%
+  arrange(Issue_Year, Issue_Month, Issue_Day, 
+          Issue_Hour,  Issue_Minute, na.rm=TRUE) %>%
+  head(1) %>%
+  select(Issue_Year, Issue_Month, Issue_Day, Issue_Hour, Issue_Minute) 
+mintime   
+```
+
+* The time period is `from 2010-04-27 21:40:00 UTC to 2017-12-30 01:41:00 UTC`.
+
+```{sql connection="con"}
+SELECT 
+  strftime('%Y', DATETIME(Issue_DateTime, 'unixepoch')) AS Year, 
+  COUNT(*) AS Number
+FROM latix
+WHERE Issue_DateTime IS NOT NULL
+GROUP BY 1
+ORDER BY 2 DESC
+LIMIT  1;
+```
+By another way: 
+```{r}
+latix_new %>% 
+  filter(!is.na(Issue_Year)) %>%
+  group_by(Issue_Year) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n)) %>%
+  head(1)
+
+```
+
+* `2015` has most of the data. 
+
+0. When (which hour, weekday, month day, and month) are you most likely to get a ticket and when are you least likely to get a ticket?
+* For Hour:
+```{r}
+sqlstr_hour <- 
+  "SELECT 
+    strftime('%H', DATETIME(Issue_DateTime, 'unixepoch')) AS Hour
+  FROM latix
+  WHERE Issue_DateTime IS NOT NULL
+"
+hour <- dbGetQuery(con, sqlstr_hour) 
+ggplot(hour, aes(Hour)) + geom_bar()
+
+latix_new %>% 
+  select(Issue_Hour) %>%
+  filter(!is.na(Issue_Hour)) %>%
+  group_by(Issue_Hour) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n))
+
+```
+* Based on the barchart above, it most likely to get a ticket at `12` and least likely to get a ticket at `5`. In addition, the summary of count can also confirm this result.
+
+* For weekday: 
+```{r}
+sqlstr_weekday <- 
+  "SELECT 
+    strftime('%w', DATETIME(Issue_DateTime, 'unixepoch')) AS Weekday
+  FROM latix
+  WHERE Issue_DateTime IS NOT NULL
+"
+weekday <- dbGetQuery(con, sqlstr_weekday) 
+ggplot(weekday, aes(Weekday)) + geom_bar()
+
+latix_new %>% 
+  select(Issue_Wday) %>%
+  filter(!is.na(Issue_Wday)) %>%
+  group_by(Issue_Wday) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n))
+
+```
+* Based on the barchart above, it most likely to get a ticket on `Tuesday` and least likely to get a ticket on `Saturday`. In addition, the summary of count can also confirm this result.
+
+* For month day:
+```{r}
+sqlstr_mday <- 
+  "SELECT 
+    strftime('%d', DATETIME(Issue_DateTime, 'unixepoch')) AS Mday
+  FROM latix
+  WHERE Issue_DateTime IS NOT NULL
+"
+mday <- dbGetQuery(con, sqlstr_mday) 
+ggplot(mday, aes(Mday)) + geom_bar()
+
+latix_new %>% 
+  select(Issue_Day) %>%
+  filter(!is.na(Issue_Day)) %>%
+  group_by(Issue_Day) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n))
+```
+* Based on the barchart above, it most likely to get a ticket on day `22` in a month and least likely to get a ticket on day `31` in a month. In addition, the summary of count can also confirm this result.
+
+* For month:
+```{r}
+sqlstr_month <- 
+  "SELECT 
+    strftime('%m', DATETIME(Issue_DateTime, 'unixepoch')) AS Month
+  FROM latix
+  WHERE Issue_DateTime IS NOT NULL
+"
+month <- dbGetQuery(con, sqlstr_month) 
+ggplot(month, aes(Month)) + geom_bar()
+
+latix_new %>% 
+  select(Issue_Month) %>%
+  filter(!is.na(Issue_Month)) %>%
+  group_by(Issue_Month) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n))
+```
+* Based on the barchart above, it most likely to get a ticket in `March` and least likely to get a ticket in `November`. In addition, the summary of count can also confirm this result.
+
+0. Which car makes received most citations?
+```{r}
+sqlstr_car <- 
+ "SELECT
+    Make AS Car,
+    COUNT(*) AS Number
+  FROM latix
+  WHERE Make IS NOT NULL
+  GROUP BY 1
+  ORDER BY 2 DESC
+  LIMIT 1
+"
+dbGetQuery(con, sqlstr_car) 
+```
+* By another method: 
+```{r}
+latix_new %>%
+  filter(!is.na(Make)) %>%
+  group_by(Make) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n)) %>%
+  head(1)
+```
+* The `TOYOTA` received most citations.
+
+0. How many different colors of cars were ticketed? Which color attracted most tickets?
+```{r}
+qlstr_color <- 
+ "SELECT
+    Color AS Color,
+    COUNT(*) AS Number
+  FROM latix
+  WHERE Color IS NOT NULL
+  GROUP BY 1
+  ORDER BY 2 DESC
+"
+color <- dbGetQuery(con, qlstr_color) 
+color[1,]
+nrow(color)
+
+```
+* By another way: 
+```{r}
+colordata <- latix_new %>%
+  filter(!is.na(Color)) %>%
+  group_by(Color) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n))
+
+colordata %>%
+  summarise(n = n())
+
+colordata %>%
+  head(1)
+```
+
+* There are `65` different colors of cars were ticketed. The `Black` car attracted most tickets.
+
+0. What are the most common ticket types?
+```{r}
+latix_new %>% 
+  filter(!is.na(Violation_Description)) %>%
+  group_by(Violation_Description) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n)) %>%
+  head(1)
+```
+* The most common is `NO PARK/STREET CLEAN`;
+
+0. How much money was collected on parking tickets in 2015 and 2016?
+```{r}
+sqlstr_money <-   
+  "SELECT
+    strftime('%Y', DATETIME(Issue_DateTime, 'unixepoch')) AS Year,
+    SUM(Fine_amount) AS Money
+  FROM latix
+  WHERE Issue_DateTime IS NOT NULL
+  GROUP BY 1
+"
+money <- dbGetQuery(con, sqlstr_money)
+money[money$Year == "2015",2]
+money[money$Year == "2016",2]
+money[money$Year == "2015",2] + money[money$Year == "2016",2]
+```
+
+Another solution by using dplyr. Unix Epoch 1420070400, and 1483228799 corresponds to 2015-01-01:00:00:00 and 2016-12-31:23:59:59 GMT, respectively.
+```{r}
+amount <- latix_new %>% 
+  select(Fine_amount, Issue_Year) %>%
+  filter(Issue_Year == 2015 || Issue_Year == 2016,
+         !is.na(Fine_amount), !is.na(Issue_Year))
+amount %>% 
+  group_by(Issue_Year) %>% 
+  summarise(amount = sum(Fine_amount, na.rm = T))
+amount %>% 
+  summarize(total = sum(Fine_amount, na.rm = TRUE))
+```
+* 2015: `$ 151006794`; 2016: `$ 123236136`; Total`$ 274242930` was collected on parking tickets in 2015 and 2016.
+
+0. Visualize any other information you are interested in.
+* which state plate is most common?
+```{r}
+latix_new %>% 
+  filter(!is.na(RP_State_Plate)) %>%
+  group_by(RP_State_Plate) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n)) %>%
+  head(1)
+
+plate_sql <- 
+  "SELECT 
+    RP_State_Plate AS RP_State_Plate,
+    COUNT(*) AS N
+  FROM latix
+  WHERE RP_State_Plate IS NOT NULL
+  GROUP BY 1
+  ORDER BY 2 DESC
+"
+plate <- dbGetQuery(con, plate_sql) 
+plate %>%
+  head(10) %>%
+  ggplot(aes(x = "", y = N, fill = RP_State_Plate)) +
+  geom_bar(stat = "identity") +
+  coord_polar(theta = "y")
+```
+
+* `CA` plate attracted most tickets.
