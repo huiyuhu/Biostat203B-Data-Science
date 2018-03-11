@@ -40,6 +40,7 @@ library(ggmap)
 library(maps)
 library(mapdata)
 
+
 busy <- flight2000 %>%
   group_by(dest) %>% 
   summarise(n = n()) %>% 
