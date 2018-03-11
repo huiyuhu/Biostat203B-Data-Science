@@ -74,6 +74,20 @@ busyroutes <- flight2000 %>%
   arrange(desc(n)) %>%
   head(10) %>% 
   collect()
+route_ori <- inner_join(busyroutes, airports_tbl,  
+                        by = c("origin" = "faa"), copy = T) %>%
+             select(origin, n, o_lat = lat, o_lon = lon)
+route_ori$o_lat <- as.numeric(route_ori$o_lat)
+route_ori$o_lon <- as.numeric(route_ori$o_lon)
+
+route_dest <- inner_join(busyroutes, airports_tbl,  
+                        by = c("dest" = "faa"), copy = T) %>%
+             select(origin, dest, n, d_lat = lat, d_lon = lon)
+route_dest$d_lat <- as.numeric(route_dest$d_lat)
+route_dest$d_lon <- as.numeric(route_dest$d_lon)
+
+toproute <- inner_join(route_ori, route_dest, by = "n") 
+
 ```
 
 3. LAX:
