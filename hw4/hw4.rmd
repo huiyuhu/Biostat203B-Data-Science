@@ -28,6 +28,11 @@ airports_tbl <- tbl(sc, 'airports')
 flight2000 <- flights_tbl %>% 
   filter(year == 2000)
 #flight2000 %>% print(width = Inf)
+LAXtraf <- flights_tbl %>% 
+  filter(origin == "LAX" || dest == "LAX") %>% 
+  group_by(year, month, dayofmonth) %>%
+  summarise(n = n()) 
+LAXtraf %>% print(width = Inf)
 ```
 
 Our Apache Yarn cluster hosts the [flights](http://stat-computing.org/dataexpo/2009/the-data.html) data representing 123 million flights over 22 years. Read the [lecture notes](http://hua-zhou.github.io/teaching/biostatm280-2018winter/slides/12-sparklyr/sparklyr-flights.html) on how to access the Yarn cluster. Connect to the database using `sparklyr` and answer following questions. You can base your answers on a specific year or the whole data set.
@@ -90,14 +95,14 @@ route_dest$lon <- as.numeric(route_dest$lon)
 route_dest$class <- "dest"
 
 toproute <- bind_rows(route_ori, route_dest) 
-toproute$n <- as.factor(toproute$n)
+#toproute$n <- as.factor(toproute$n)
 usa <- map_data("usa")
 gg2 <- ggplot() + 
   geom_polygon(data = usa, aes(x = long, y = lat, group = group),
                fill = "azure2", color = "azure4") + 
     coord_fixed(1.3) + 
   geom_point(data = toproute, aes(x = lon, y = lat, color = class, shape = class)) + 
-  geom_line(data = toproute, aes(x = lon, y = lat, group = n, size = n, color = n))
+  geom_line(data = toproute, aes(x = lon, y = lat, group = n, size = n))
   
 ```
 
@@ -108,6 +113,9 @@ gg2 <- ggplot() +
     </p>
 
     (a). Reproduce above plot. Visualize and explain some prominent features you observe. For example, what happened at points 1-5?
+```{r}
+
+```
 
     (b). Visualize and explain seasonal effects.
   
