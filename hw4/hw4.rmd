@@ -31,7 +31,7 @@ flight2000 <- flights_tbl %>%
 ```
 
 Our Apache Yarn cluster hosts the [flights](http://stat-computing.org/dataexpo/2009/the-data.html) data representing 123 million flights over 22 years. Read the [lecture notes](http://hua-zhou.github.io/teaching/biostatm280-2018winter/slides/12-sparklyr/sparklyr-flights.html) on how to access the Yarn cluster. Connect to the database using `sparklyr` and answer following questions. You can base your answers on a specific year or the whole data set.
-
+#### My project was based on the data in year 2000.
 1. Map the top 10 busiest airports. Size of dots should reflect the number of flights through that destination.  
 Hint: You may find this tutorial on [Making Maps in R](http://eriqande.github.io/rep-res-web/lectures/making-maps-with-R.html) helpful.
 ```{r}
@@ -76,18 +76,29 @@ busyroutes <- flight2000 %>%
   collect()
 route_ori <- inner_join(busyroutes, airports_tbl,  
                         by = c("origin" = "faa"), copy = T) %>%
-             select(origin, n, o_lat = lat, o_lon = lon)
-route_ori$o_lat <- as.numeric(route_ori$o_lat)
-route_ori$o_lon <- as.numeric(route_ori$o_lon)
+             select(origin, n, lat, lon)
+route_ori$lat <- as.numeric(route_ori$lat)
+route_ori$lon <- as.numeric(route_ori$lon)
+route_ori$class <- "origin"
 
 route_dest <- inner_join(busyroutes, airports_tbl,  
                         by = c("dest" = "faa"), copy = T) %>%
-             select(origin, dest, n, d_lat = lat, d_lon = lon)
-route_dest$d_lat <- as.numeric(route_dest$d_lat)
-route_dest$d_lon <- as.numeric(route_dest$d_lon)
+              ungroup() %>%
+             select(dest, n, lat, lon)
+route_dest$lat <- as.numeric(route_dest$lat)
+route_dest$lon <- as.numeric(route_dest$lon)
+route_dest$class <- "dest"
 
-toproute <- inner_join(route_ori, route_dest, by = "n") 
-
+toproute <- bind_rows(route_ori, route_dest) 
+toproute$n <- as.factor(toproute$n)
+usa <- map_data("usa")
+gg2 <- ggplot() + 
+  geom_polygon(data = usa, aes(x = long, y = lat, group = group),
+               fill = "azure2", color = "azure4") + 
+    coord_fixed(1.3) + 
+  geom_point(data = toproute, aes(x = lon, y = lat, color = class, shape = class)) + 
+  geom_line(data = toproute, aes(x = lon, y = lat, group = n, size = n, color = n))
+  
 ```
 
 3. LAX:
