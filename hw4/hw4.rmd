@@ -24,7 +24,7 @@ flights_tbl <- tbl(sc, 'flights')
 #flights_tbl %>% print(width = Inf)
 airlines_tbl <- tbl(sc, 'airlines')
 airports_tbl <- tbl(sc, 'airports')
-#airports_tbl %>% print(width = Inf)
+airports_tbl %>% print(width = Inf)
 flight2000 <- flights_tbl %>% 
   filter(year == 2000)
 ```
@@ -40,13 +40,15 @@ library(ggmap)
 library(maps)
 library(mapdata)
 
-
+#find top 10 busy airport in year 2000
 busy <- flight2000 %>%
   group_by(dest) %>% 
-  summarise(n = n()) %>% 
+  summarise(faa = dest, n = n()) %>% 
   arrange(desc(n)) %>%
   head(10) %>% 
   collect()
+
+inner_join(busy, airports_tbl, by = "faa", copy = T)
 
 ```
 
