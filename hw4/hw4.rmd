@@ -15,12 +15,18 @@ library(ggplot2)
 Sys.setenv(SPARK_HOME="/usr/lib/spark")
 config <- spark_config()
 sc <- spark_connect(master = "yarn-client", config = config)
+#spark_disconnect_all()
+```
+
+```{r}
 #Access Hive tables
 flights_tbl <- tbl(sc, 'flights')
-flights_tbl %>% print(width = Inf)
+#flights_tbl %>% print(width = Inf)
 airlines_tbl <- tbl(sc, 'airlines')
 airports_tbl <- tbl(sc, 'airports')
-airports_tbl %>% print(width = Inf)
+#airports_tbl %>% print(width = Inf)
+flight2000 <- flights_tbl %>% 
+  filter(year == 2000)
 ```
 
 Our Apache Yarn cluster hosts the [flights](http://stat-computing.org/dataexpo/2009/the-data.html) data representing 123 million flights over 22 years. Read the [lecture notes](http://hua-zhou.github.io/teaching/biostatm280-2018winter/slides/12-sparklyr/sparklyr-flights.html) on how to access the Yarn cluster. Connect to the database using `sparklyr` and answer following questions. You can base your answers on a specific year or the whole data set.
@@ -34,12 +40,12 @@ library(ggmap)
 library(maps)
 library(mapdata)
 
-busy <- flights_tbl %>% 
+busy <- flight2000 %>%
   group_by(dest) %>% 
   summarise(n = n()) %>% 
   arrange(desc(n)) %>%
-  head(10)
-busy
+  head(10) %>% 
+  collect()
 
 ```
 
