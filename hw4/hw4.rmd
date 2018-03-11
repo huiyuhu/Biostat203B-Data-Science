@@ -47,9 +47,21 @@ busy <- flight2000 %>%
   arrange(desc(n)) %>%
   head(10) %>% 
   collect()
+# innerjoin by airport name (faa)
+busy_ap <- inner_join(busy, airports_tbl, by = "faa", 
+                      copy = T) %>%
+            arrange(desc(n))
+busy_ap$lat <- as.numeric(busy_ap$lat)
+busy_ap$lon <- as.numeric(busy_ap$lon)
 
-inner_join(busy, airports_tbl, by = "faa", copy = T)
-
+usa <- map_data("usa")
+gg1 <- ggplot() + 
+  geom_polygon(data = usa, aes(x = long, y = lat, group = group),
+               fill = "navajowhite", color = "navajowhite4") + 
+    coord_fixed(1.3) + 
+  geom_point(data = busy_ap, aes(x = lon, y = lat, size = n )) + 
+  geom_text(data = busy_ap, aes(lon, lat, label=dest,
+                                colour = factor(dest),fontface = "bold"))
 ```
 
 2. Map the top 10 busiest direct routes. Size of lines should reflect the number of flights through that route.
