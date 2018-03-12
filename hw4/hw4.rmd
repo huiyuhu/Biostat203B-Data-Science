@@ -207,8 +207,42 @@ system.time(
   ml1 <- model_partition$train %>%
     ml_linear_regression(arrdelay ~ distance + depdelay + dayofweek + hour)
 )
+# Summarize the linear model
+summary(ml1)
+```
+* Assess model performance
+```{r}
+# Calculate average gains by predicted decile
+system.time(
+  model_deciles <- lapply(model_partition, function(x) {
+    sdf_predict(ml1, x) %>%
+      mutate(decile = ntile(desc(prediction), 10)) %>%
+      group_by(decile) %>%
+      summarize(arrdelay = mean(arrdelay)) %>%
+      select(decile, arrdelay) %>%
+      collect()
+  })
+)
+model_deciles
+# Create a summary dataset for plotting
+deciles <- rbind(
+  data.frame(data = 'train', model_deciles$train),
+  data.frame(data = 'valid', model_deciles$valid),
+  make.row.names = FALSE
+)
+deciles
+
+# Plot average arrdelay by predicted decile
+deciles %>%
+  ggplot(aes(factor(decile), arrdelay, fill = data)) +
+  geom_bar(stat = 'identity', position = 'dodge') +
+  labs(title = 'Average arrdelay by predicted decile', x = 'Decile', y = 'Minutes')
+```
+* Visualize predictions
+```{r}
 
 ```
+
     
 5. Visualize and explain any other information you want to explore.
   
