@@ -28,11 +28,18 @@ airports_tbl <- tbl(sc, 'airports')
 flight2000 <- flights_tbl %>% 
   filter(year == 2000)
 #flight2000 %>% print(width = Inf)
-LAXtraf <- flights_tbl %>% 
-  filter(origin == "LAX" || dest == "LAX") %>% 
-  group_by(year, month, dayofmonth) %>%
-  summarise(n = n()) 
-LAX_traf <- LAXtraf %>% 
+LAX <- flights_tbl %>% 
+  filter(origin == "LAX" || dest == "LAX") 
+LAX_traf <- LAX %>% 
+  group_by(year, month, dayofmonth, dayofweek) %>%
+  summarise(n = n()) %>%
+  collect()
+LAX2000_dest <- LAX %>%
+  filter(origin == "LAX" && year == 2000) %>%
+  group_by(dest) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n)) %>%
+  head(10) %>% 
   collect()
 #LAXtraf %>% print(width = Inf)
 ```
@@ -130,7 +137,7 @@ gg3
 ```
 
     (b). Visualize and explain seasonal effects.
-
+    * Answer based on the flight in 2000
 ```{r}
 LAX2000 <- LAX_traf %>% 
   filter(year == 2000)
@@ -149,9 +156,21 @@ ggplot() +
 ```
   
     (c). Visualize and explain weekly effects.
+    * Answer based on the flight in 2000
+```{r}
+week <- LAX2000 %>%
+  group_by(dayofweek) %>%
+  summarise(traffic_n = sum(n))
+ggplot() +
+  geom_bar(data = week, aes(x = dayofweek, y = traffic_n), stat = "identity")
+```
   
     (d). Map top 10 destinations from LAX. Size of dots should reflect the number of flights from LAX to that destination.
-    
+    * Answer based on the flight in 2000
+```{r}
+LAX2000_dest1 <- flight2000 
+```
+  
 4. Build a predictive model for the arrival delay (`arrdelay`) of flights flying from LAX. Use the same filtering criteria as in the [lecture notes](http://hua-zhou.github.io/teaching/biostatm280-2018winter/slides/12-sparklyr/sparklyr-flights.html) to construct training and validation sets. You are allowed to use a maximum of 5 predictors. The prediction performance of your model on the validation data set will be an important factor for grading this question.
     
 5. Visualize and explain any other information you want to explore.
