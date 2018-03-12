@@ -118,6 +118,10 @@ gg2 <- ggplot() +
 ```{r}
 LAX_traf$date <- as.Date(paste(LAX_traf$year, LAX_traf$month, LAX_traf$dayofmonth, sep='-'))
 
+gg3 <- ggplot() +
+  geom_line(data = LAX_traf, aes(x = date, y = n)) + 
+  scale_x_date(date_breaks = "2 years",date_labels = "%Y", limits = as.Date(c('1998-1-1', '2009-1-1'))) +
+  coord_fixed(ratio=1.6)
 
 ```
 
