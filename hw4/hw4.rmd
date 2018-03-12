@@ -200,6 +200,14 @@ model_data <- flights_tbl %>%
     select(year, month, dayofweek, arrdelay, depdelay, crsdeptime, distance, uniquecarrier, description, hour)
 )
 model_data
+# Partition the data into training and validation sets
+model_partition <- model_data %>% 
+  sdf_partition(train = 0.8, valid = 0.2, seed = 5555)
+system.time(
+  ml1 <- model_partition$train %>%
+    ml_linear_regression(arrdelay ~ distance + depdelay + dayofweek + hour)
+)
+
 ```
     
 5. Visualize and explain any other information you want to explore.
