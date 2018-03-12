@@ -32,7 +32,9 @@ LAXtraf <- flights_tbl %>%
   filter(origin == "LAX" || dest == "LAX") %>% 
   group_by(year, month, dayofmonth) %>%
   summarise(n = n()) 
-LAXtraf %>% print(width = Inf)
+LAX_traf <- LAXtraf %>% 
+  collect()
+#LAXtraf %>% print(width = Inf)
 ```
 
 Our Apache Yarn cluster hosts the [flights](http://stat-computing.org/dataexpo/2009/the-data.html) data representing 123 million flights over 22 years. Read the [lecture notes](http://hua-zhou.github.io/teaching/biostatm280-2018winter/slides/12-sparklyr/sparklyr-flights.html) on how to access the Yarn cluster. Connect to the database using `sparklyr` and answer following questions. You can base your answers on a specific year or the whole data set.
@@ -114,6 +116,8 @@ gg2 <- ggplot() +
 
     (a). Reproduce above plot. Visualize and explain some prominent features you observe. For example, what happened at points 1-5?
 ```{r}
+LAX_traf$date <- as.Date(paste(LAX_traf$year, LAX_traf$month, LAX_traf$dayofmonth, sep='-'))
+
 
 ```
 
