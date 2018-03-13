@@ -207,15 +207,20 @@ system.time(
   ml1 <- model_partition$train %>%
     ml_linear_regression(arrdelay ~ distance + depdelay + dayofweek + hour)
 )
+system.time(
+  ml2 <- model_partition$train %>%
+    ml_linear_regression(arrdelay ~ distance + depdelay + dayofweek + hour + uniquecarrier)
+)
 # Summarize the linear model
 summary(ml1)
+summary(ml2)
 ```
 * Assess model performance
 ```{r}
 # Calculate average gains by predicted decile
 system.time(
   model_deciles <- lapply(model_partition, function(x) {
-    sdf_predict(ml1, x) %>%
+    sdf_predict(ml2, x) %>%
       mutate(decile = ntile(desc(prediction), 10)) %>%
       group_by(decile) %>%
       summarize(arrdelay = mean(arrdelay)) %>%
@@ -245,4 +250,10 @@ deciles %>%
 
     
 5. Visualize and explain any other information you want to explore.
+
+
+```{r}
+spark_disconnect_all()
+```
+  
   
