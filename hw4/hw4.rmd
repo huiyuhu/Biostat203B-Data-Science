@@ -323,6 +323,7 @@ LAX_delay <- inner_join(LAX_delay30, airports_tbl,
   collect()
 ```
 ```{r}
+
 LAX_delay$lat <- as.numeric(LAX_delay$lat)
 LAX_delay$lon <- as.numeric(LAX_delay$lon)
 usa <- map_data("usa")
@@ -330,8 +331,8 @@ gg6 <- ggplot() +
   geom_polygon(data = usa, aes(x = long, y = lat, group = group),
                fill = "seashell", color = "seashell3") + 
     coord_fixed(1.3) + 
-  geom_point(data = LAX_delay, aes(x = lon, y = lat, size = n, color = dest))
-  
+  geom_point(data = LAX_delay, aes(x = lon, y = lat, color = n, size = 3)) +
+   scale_color_gradientn(colours = terrain.colors(7))
 gg6
 ```
 
