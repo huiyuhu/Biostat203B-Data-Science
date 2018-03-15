@@ -50,14 +50,14 @@ LAX_delay <- flight2000 %>%
   summarise(avgdelay = mean(depdelay, na.rm = T)) %>%
   arrange(desc(avgdelay)) %>%
   head(10)
-LAX_delay45 <- flight2000 %>% 
+LAX_delay30 <- flight2000 %>% 
   filter(origin == "LAX") %>%
-  filter(depdelay >= 45) %>%
+  filter(depdelay >= 30) %>%
   group_by(dest) %>%
   summarise(n = n()) %>%
   arrange(desc(n)) %>%
   head(10)
-#LAX_delay45 %>% print(width = Inf)
+LAX_delay30 %>% print(width = Inf)
 ```
 
 Our Apache Yarn cluster hosts the [flights](http://stat-computing.org/dataexpo/2009/the-data.html) data representing 123 million flights over 22 years. Read the [lecture notes](http://hua-zhou.github.io/teaching/biostatm280-2018winter/slides/12-sparklyr/sparklyr-flights.html) on how to access the Yarn cluster. Connect to the database using `sparklyr` and answer following questions. You can base your answers on a specific year or the whole data set.
@@ -314,25 +314,25 @@ ggplot(carrier2, aes(arrdelay, prediction)) +
 
     
 5. Visualize and explain any other information you want to explore.
-* I choose to find the top 10 destination that most frequently delay more than 45 min.
+* I choose to find the top 10 destination that most frequently delay more than 30 min.
 ```{r}
-LAX_delay30 <- inner_join(LAX2000_dest, airports_tbl,
+LAX_delay <- inner_join(LAX_delay30, airports_tbl,
                           by = c("dest" = "faa"), copy = T) %>%
   ungroup() %>%
   select(dest, n, lat, lon) %>%
   collect()
 ```
 ```{r}
-LAX_delay30$lat <- as.numeric(LAX_delay30$lat)
-LAX_delay30$lon <- as.numeric(LAX_delay30$lon)
+LAX_delay$lat <- as.numeric(LAX_delay$lat)
+LAX_delay$lon <- as.numeric(LAX_delay$lon)
 usa <- map_data("usa")
-gg5 <- ggplot() + 
+gg6 <- ggplot() + 
   geom_polygon(data = usa, aes(x = long, y = lat, group = group),
                fill = "seashell", color = "seashell3") + 
     coord_fixed(1.3) + 
-  geom_point(data = LAX_delay30, aes(x = lon, y = lat, size = n, color = dest))
+  geom_point(data = LAX_delay, aes(x = lon, y = lat, size = n, color = dest))
   
-gg5
+gg6
 ```
 
 
