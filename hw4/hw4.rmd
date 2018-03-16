@@ -17,7 +17,7 @@ config <- spark_config()
 sc <- spark_connect(master = "yarn-client", config = config)
 #spark_disconnect_all()
 ```
-
+* Prepare the database. 
 ```{r}
 #Access Hive tables
 flights_tbl <- tbl(sc, 'flights')
@@ -163,11 +163,12 @@ gg3 <- ggplot() +
   coord_fixed(ratio=1.2) +
   ggtitle("LAX air traffic") +  
   geom_label(label = c("5","1","3","2","4"), 
-             aes(x = as.Date(c('2001-1-1', '2001-9-30', 
-                               '2004-7-1', '2004-12-1', '2008-1-1')), 
+             aes(x = as.Date(c('2001-1-1', '2001-9-11', 
+                               '2004-7-1', '2004-11-25', '2008-1-1')), 
              y = c(1200, 1070, 960, 930, 1200)))
 gg3
 ```
+* Explaination: The label #1 showed sharply decrease, I believed the reason is the 911 make people don't want to travel a lot. The label #2 and #3 showed the in Noverber (or December) and July there is holidays make this parttern. Since during Thanksgiving or close to Chrismas, families member usually want to stay at home and travel less. Also, independence day in July, people won't travel for business a lot. The label #4 showed sharply decrease, the possible reason for this is because of economic depression in 2008. The label #5 showed increase is because of Los Angeles finished city constructions, so people travel to LA more. 
 
     (b). Visualize and explain seasonal effects.
     * Answer based on the flight in 2000
@@ -191,7 +192,7 @@ gg4 <- ggplot() +
   ggtitle("Seasonal LAX air traffic in 2000")
 gg4
 ```
-* The table and plot showed the seasonal effect on the flight traffic in LAX. Winter quater had lowest traffic and summer and fall quater had busies traffic. 
+* The table and plot showed the seasonal effect on the flight traffic in LAX (in 2000). Winter quater had lowest traffic and summer and fall quater had busies traffic. The possible reason for this is because students have their summer break so they have their vacation during summer. In addition, people usually tend to stay at home during winter due to holiday and bad weather. 
 
     (c). Visualize and explain weekly effects.
     * Answer based on the flight in 2000
@@ -202,7 +203,7 @@ week <- LAX2000 %>%
 ggplot() +
   geom_bar(data = week, aes(x = dayofweek, y = traffic_n), stat = "identity")
 ```
-  * The Sat and Sun had less traffic.
+  * The Sat and Sun had less traffic. From Monday to Friday, there were high demands for flights for business travel.  
   
     (d). Map top 10 destinations from LAX. Size of dots should reflect the number of flights from LAX to that destination.
     * Answer `based on the flight in 2000`. 
@@ -251,8 +252,16 @@ system.time(
 )
 # Summarize the linear model
 summary(ml1)
-
+#Find MSE
+result_valid <- sdf_predict(ml1, model_partition$valid) %>%
+  mutate(residual = arrdelay - prediction) %>%
+  summarize(mse = mean(residual^2, na.rm = T))
+result_valid$mse
 ```
+* The R-Square: 0.8834
+* The MSE: Model: 13.44^2 = 180.6336, Prediction: 181.9295.
+* The R-Square is 0.8834, which close to 1. In addition, the MSE of model and valid prediction is very close. 
+
 * Assess model performance
 ```{r}
 # Calculate average gains by predicted decile
@@ -304,6 +313,12 @@ carrier <- sdf_predict(ml1, data_2000)  %>%
    summarize(arrdelay = mean(arrdelay, na.rm = T), 
              prediction = mean(prediction, na.rm = T), freq = n()) %>%
    filter(freq > 100) %>%
+  collect()
+hour <- sdf_predict(ml1, data_2000)  %>%
+   group_by(hour) %>%
+   summarize(arrdelay = mean(arrdelay, na.rm = T), 
+             prediction = mean(prediction, na.rm = T), freq = n()) %>%
+   filter(freq > 500) %>%
   collect()
 ```
 
