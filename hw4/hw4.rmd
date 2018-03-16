@@ -118,7 +118,8 @@ toproutes$lon_from <- as.numeric(toproutes$lon_from)
 toproutes$lon_to <- as.numeric(toproutes$lon_to)
 toproutes$lat_from <- as.numeric(toproutes$lat_from)
 toproutes$lat_to <- as.numeric(toproutes$lat_to)
-toproutes$scale_n <- 0.1 + 1.9 * (toproutes$n - min(toproutes$n))  / (max(toproutes$n)- min(toproutes$n))
+toproutes$scale_n <- 0.1 + 1.9 * (
+  toproutes$n - min(toproutes$n))  / (max(toproutes$n)- min(toproutes$n))
 
 airport <- unique(c(toproutes$origin, toproutes$dest)) 
 topairports <- as.data.frame(airport)
@@ -244,7 +245,7 @@ system.time(
 )
 # Summarize the linear model
 summary(ml1)
-summary(ml2)
+
 ```
 * Assess model performance
 ```{r}
