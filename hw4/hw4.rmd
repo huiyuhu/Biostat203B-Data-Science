@@ -229,6 +229,7 @@ gg5
 ```
   
 4. Build a predictive model for the arrival delay (`arrdelay`) of flights flying from LAX. Use the same filtering criteria as in the [lecture notes](http://hua-zhou.github.io/teaching/biostatm280-2018winter/slides/12-sparklyr/sparklyr-flights.html) to construct training and validation sets. You are allowed to use a maximum of 5 predictors. The prediction performance of your model on the validation data set will be an important factor for grading this question.
+### Compute the linear model.
 ```{r}
 system.time(
 model_data <- flights_tbl %>%
@@ -256,13 +257,13 @@ summary(ml1)
 result_valid <- sdf_predict(ml1, model_partition$valid) %>%
   mutate(residual = arrdelay - prediction) %>%
   summarize(mse = mean(residual^2, na.rm = T))
-result_valid$mse
+result_valid
 ```
-* The R-Square: 0.8834
-* The MSE: Model: 13.44^2 = 180.6336, Prediction: 181.9295.
-* The R-Square is 0.8834, which close to 1. In addition, the MSE of model and valid prediction is very close. 
+* The R-Square: *0.8834*.
+* The MSE: Model: 13.44^2 = *180.6336*, Prediction: *181.9295*.
+* The R-Square is 0.8834, which close to 1. In addition, the MSE of model and valid prediction were very close. Therefore, the model (arrdelay ~ distance + depdelay + dayofweek + hour) is reliable.
 
-* Assess model performance
+### Assess model performance
 ```{r}
 # Calculate average gains by predicted decile
 system.time(
@@ -291,7 +292,10 @@ deciles %>%
   labs(title = 'Average arrdelay by predicted decile', 
        x = 'Decile', y = 'Minutes')
 ```
-* Visualize predictions
+
+* Based on the Plot above, the difference be
+
+### Visualize predictions
 ```{r}
 # Select data from an out of time sample
 data_2000 <- flights_tbl %>%
@@ -318,7 +322,7 @@ hour <- sdf_predict(ml1, data_2000)  %>%
    group_by(hour) %>%
    summarize(arrdelay = mean(arrdelay, na.rm = T), 
              prediction = mean(prediction, na.rm = T), freq = n()) %>%
-   filter(freq > 500) %>%
+   filter(freq > 300) %>%
   collect()
 ```
 
@@ -328,6 +332,14 @@ ggplot(carrier, aes(arrdelay, prediction)) +
   geom_point(alpha = 0.75, color = 'red', shape = 3) +
   geom_abline(intercept = 0, slope = 1, alpha = 0.15, color = 'blue') +
   geom_text(aes(label = substr(description, 1, 20)), 
+            size = 3, alpha = 0.75, vjust = -1) +
+  labs(title='Average Arrival Delay Forecast', x = 'Actual', y = 'Predicted')
+
+# Plot actual and predicted arrival delay by Hour
+ggplot(hour, aes(arrdelay, prediction)) + 
+  geom_point(alpha = 0.75, color = 'red', shape = 3) +
+  geom_abline(intercept = 0, slope = 1, alpha = 0.15, color = 'blue') +
+  geom_text(aes(label = substr(hour, 1, 20)), 
             size = 3, alpha = 0.75, vjust = -1) +
   labs(title='Average Arrival Delay Forecast', x = 'Actual', y = 'Predicted')
 ```
