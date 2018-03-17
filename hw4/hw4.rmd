@@ -57,7 +57,7 @@ LAX_delay30 <- flight2000 %>%
   summarise(n = n()) %>%
   arrange(desc(n)) %>%
   head(10)
-LAX_delay30 %>% print(width = Inf)
+#LAX_delay30 %>% print(width = Inf)
 ```
 
 Our Apache Yarn cluster hosts the [flights](http://stat-computing.org/dataexpo/2009/the-data.html) data representing 123 million flights over 22 years. Read the [lecture notes](http://hua-zhou.github.io/teaching/biostatm280-2018winter/slides/12-sparklyr/sparklyr-flights.html) on how to access the Yarn cluster. Connect to the database using `sparklyr` and answer following questions. You can base your answers on a specific year or the whole data set.
@@ -133,13 +133,16 @@ topairports
 ```
 
 Plot
-
+* The different color showed different route and the size showed the number. 
 ```{r}
 usa <- map_data("usa")
 gg2 <- ggplot() + 
   geom_polygon(data = usa, aes(x = long, y = lat, group = group),
                fill = "azure2", color = "azure4") + 
-    geom_curve(data = toproutes, aes(x = lon_from, xend = lon_to, y = lat_from, yend = lat_to, colour = factor(n)), curvature = .5, arrow = arrow(length = unit(0.3, "cm")), size = toproutes$scale_n) +
+    geom_curve(data = toproutes, aes(x = lon_from, xend = lon_to, y = lat_from, 
+                                     yend = lat_to, colour = factor(n)), 
+               curvature = .5, arrow = arrow(length = unit(0.3, "cm")), 
+               size = toproutes$scale_n) +
     coord_fixed(1.3) + 
   geom_point(data = topairports, aes(x = lon, y = lat))  
   #geom_text(data = topairports, aes(lon, lat, label=airport, fontface = "bold"), colour = "red")
@@ -153,7 +156,8 @@ gg2
 
     (a). Reproduce above plot. Visualize and explain some prominent features you observe. For example, what happened at points 1-5?
 ```{r}
-LAX_traf$date <- as.Date(paste(LAX_traf$year, LAX_traf$month, LAX_traf$dayofmonth, sep='-'))
+LAX_traf$date <- as.Date(paste(LAX_traf$year, LAX_traf$month, LAX_traf$dayofmonth,
+                               sep='-'))
 
 break.vec <- seq(from=as.Date("1998-01-01"), to=as.Date("2008-01-01"), by="year")
 gg3 <- ggplot() +
@@ -203,10 +207,11 @@ week <- LAX2000 %>%
 ggplot() +
   geom_bar(data = week, aes(x = dayofweek, y = traffic_n), stat = "identity")
 ```
-  * The Sat and Sun had less traffic. From Monday to Friday, there were high demands for flights for business travel.  
+
+* The histgram showed that the Sat and Sun had less traffic. From Monday to Friday, there were high demands for flights for business travel.  
   
     (d). Map top 10 destinations from LAX. Size of dots should reflect the number of flights from LAX to that destination.
-    * Answer `based on the flight in 2000`. 
+    * Answer `based on the flight in 2000`. The differenct color indicated different airport and size of dots reflect the number of flights from LAX to that destination. 
 ```{r}
 LAX2000_dest1 <- inner_join(LAX2000_dest, airports_tbl,  
                         by = c("dest" = "faa"), copy = T) %>%
@@ -251,6 +256,7 @@ system.time(
   ml1 <- model_partition$train %>%
     ml_linear_regression(arrdelay ~ distance + depdelay + dayofweek + hour)
 )
+
 # Summarize the linear model
 summary(ml1)
 #Find MSE
@@ -261,7 +267,7 @@ result_valid
 ```
 * The R-Square: *0.8834*.
 * The MSE: Model: 13.44^2 = *180.6336*, Prediction: *181.9295*.
-* The R-Square is 0.8834, which close to 1. In addition, the MSE of model and valid prediction were very close. Therefore, the model (arrdelay ~ distance + depdelay + dayofweek + hour) is reliable.
+* The R-Square is 0.8834, which close to 1. In addition, the MSE of model and valid prediction were very close. Therefore, the model (arrdelay ~ distance + depdelay + dayofweek + hour) is significant and reliable.  
 
 ### Assess model performance
 ```{r}
@@ -277,6 +283,7 @@ system.time(
   })
 )
 model_deciles
+
 # Create a summary dataset for plotting
 deciles <- rbind(
   data.frame(data = 'train', model_deciles$train),
@@ -293,45 +300,50 @@ deciles %>%
        x = 'Decile', y = 'Minutes')
 ```
 
-* Based on the Plot above, the difference be
+* Based on the Plot above, the difference between train and valid was very small. So the model showed great matching with valid data. 
 
 ### Visualize predictions
+* Use dataset 2008:
 ```{r}
 # Select data from an out of time sample
-data_2000 <- flights_tbl %>%
+
+data_2008 <- flights_tbl %>%
   filter(origin == "LAX") %>%
   filter(!is.na(arrdelay) & !is.na(depdelay) & !is.na(distance)) %>%
   filter(depdelay > 15 & depdelay < 240) %>%
   filter(arrdelay > -60 & arrdelay < 360) %>%
-  filter(year == 2000) %>%
+  filter(year == 2008) %>%
   left_join(airlines_tbl, by = c("uniquecarrier" = "code")) %>%
   mutate(hour = as.integer(crsdeptime / 100)) %>%
-  select(year, month, dayofweek, arrdelay, depdelay, crsdeptime, 
-         distance, uniquecarrier, description, hour)
-data_2000
+  select(year, month, arrdelay,dayofweek, depdelay, distance, uniquecarrier, 
+         description, origin, dest, hour)
+data_2008
+
 ```
 ```{r}
 # Summarize data by carrier
-carrier <- sdf_predict(ml1, data_2000)  %>%
-   group_by(description) %>%
-   summarize(arrdelay = mean(arrdelay, na.rm = T), 
-             prediction = mean(prediction, na.rm = T), freq = n()) %>%
-   filter(freq > 100) %>%
+carrier <- sdf_predict(ml1, data_2008) %>%
+  group_by(description) %>%
+  summarize(arrdelay = mean(arrdelay), prediction = mean(prediction), 
+            freq = n()) %>%
+  filter(freq > 800) %>%
   collect()
-hour <- sdf_predict(ml1, data_2000)  %>%
-   group_by(hour) %>%
-   summarize(arrdelay = mean(arrdelay, na.rm = T), 
-             prediction = mean(prediction, na.rm = T), freq = n()) %>%
-   filter(freq > 300) %>%
+
+# Summarize data by hour
+hour <- sdf_predict(ml1, data_2008) %>%
+  group_by(hour) %>%
+  summarize(arrdelay = mean(arrdelay), prediction = mean(prediction), 
+            freq = n()) %>%
+  filter(freq > 600) %>%
   collect()
 ```
 
 ```{r}
 # Plot actual and predicted arrival delay by airline carrier
-ggplot(carrier, aes(arrdelay, prediction)) + 
+ggplot(carrier, aes(arrdelay, prediction)) +
   geom_point(alpha = 0.75, color = 'red', shape = 3) +
   geom_abline(intercept = 0, slope = 1, alpha = 0.15, color = 'blue') +
-  geom_text(aes(label = substr(description, 1, 20)), 
+  geom_text(aes(label = substr(description, 1, 20)),
             size = 3, alpha = 0.75, vjust = -1) +
   labs(title='Average Arrival Delay Forecast', x = 'Actual', y = 'Predicted')
 
@@ -343,23 +355,9 @@ ggplot(hour, aes(arrdelay, prediction)) +
             size = 3, alpha = 0.75, vjust = -1) +
   labs(title='Average Arrival Delay Forecast', x = 'Actual', y = 'Predicted')
 ```
-```{r}
-# # Prediction results for model 2
-# carrier2 <- sdf_predict(ml2, data_2000)  %>%
-#    group_by(description) %>%
-#    summarize(arrdelay = mean(arrdelay, na.rm = T), prediction = mean(prediction, na.rm = T), freq = n()) %>%
-#    filter(freq > 100) %>%
-#   collect()
-# ```
-# 
-# ```{r}
-# # Plot actual gains and predicted gains by airline carrier
-# ggplot(carrier2, aes(arrdelay, prediction)) + 
-#   geom_point(alpha = 0.75, color = 'red', shape = 3) +
-#   geom_abline(intercept = 0, slope = 1, alpha = 0.15, color = 'blue') +
-#   geom_text(aes(label = substr(description, 1, 20)), size = 3, alpha = 0.75, vjust = -1) +
-#   labs(title='Average Arrival Delay Forecast', x = 'Actual', y = 'Predicted')
-```
+
+* When visulizaing the predicted value verse the actual value (based on hour), the data points are roughly along the reference line (predicted:actual value = 1:1), but not perfect (most of the point are above the line). Thus, the linear model generated by training data do not has perfect ability in prediction. The possible for this could be the dataset itself, if we use another year the result might be difference. In addition, the data showed that there are minutes between smallest and largest arrival delay. So the hour can be a good predictor for arrival delay. 
+* When visulizaing the predicted value verse the actual value (based on carriers), the points almost close to each other(no big difference) except United airline, therefore, carrier may not be a necessary predictor for this model. 
 
     
 5. Visualize and explain any other information you want to explore.
