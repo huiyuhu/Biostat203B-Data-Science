@@ -1,0 +1,392 @@
+---
+title: "Biostat M280 Homework 4"
+subtitle: Due Mar 16 @ 11:59PM
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(sparklyr)
+library(dplyr)
+library(ggplot2)
+Sys.setenv(SPARK_HOME="/usr/lib/spark")
+config <- spark_config()
+sc <- spark_connect(master = "yarn-client", config = config)
+#spark_disconnect_all()
+```
+* Prepare the database. 
+```{r}
+#Access Hive tables
+flights_tbl <- tbl(sc, 'flights')
+#flights_tbl %>% print(width = Inf)
+airlines_tbl <- tbl(sc, 'airlines')
+airports_tbl <- tbl(sc, 'airports')
+#airports_tbl %>% print(width = Inf)
+flight2000 <- flights_tbl %>% 
+  filter(year == 2000)
+#flight2000 %>% print(width = Inf)
+LAX <- flights_tbl %>% 
+  filter(origin == "LAX" || dest == "LAX") 
+LAX_traf <- LAX %>% 
+  group_by(year, month, dayofmonth, dayofweek) %>%
+  summarise(n = n()) %>%
+  collect()
+LAX2000_dest <- flight2000 %>%
+  filter(origin == "LAX") %>%
+  group_by(dest) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n)) %>%
+  head(10)
+#LAX %>% print(width = Inf)
+
+#Find the most departure delay dest from LAX
+LAX_delay <- flight2000 %>%
+  filter(origin == "LAX") %>%
+  filter(depdelay >= 0) %>%
+  group_by(dest) %>%
+  summarise(avgdelay = mean(depdelay, na.rm = T)) %>%
+  arrange(desc(avgdelay)) %>%
+  head(10)
+LAX_delay30 <- flight2000 %>% 
+  filter(origin == "LAX") %>%
+  filter(depdelay >= 30) %>%
+  group_by(dest) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n)) %>%
+  head(10)
+#LAX_delay30 %>% print(width = Inf)
+```
+
+Our Apache Yarn cluster hosts the [flights](http://stat-computing.org/dataexpo/2009/the-data.html) data representing 123 million flights over 22 years. Read the [lecture notes](http://hua-zhou.github.io/teaching/biostatm280-2018winter/slides/12-sparklyr/sparklyr-flights.html) on how to access the Yarn cluster. Connect to the database using `sparklyr` and answer following questions. You can base your answers on a specific year or the whole data set.
+#### My project was based on the data in year 2000.
+1. Map the top 10 busiest airports. Size of dots should reflect the number of flights through that destination.  
+Hint: You may find this tutorial on [Making Maps in R](http://eriqande.github.io/rep-res-web/lectures/making-maps-with-R.html) helpful.
+* The data was based on the year *2000*. The busy airports were based on the number of flights through that *destination*.
+```{r}
+# map pakeages 
+library(ggplot2)
+library(ggmap)
+library(maps)
+library(mapdata)
+
+#find top 10 busy airport in year 2000
+busy <- flight2000 %>%
+  group_by(dest) %>% 
+  summarise(faa = dest, n = n()) %>% 
+  arrange(desc(n)) %>%
+  head(10) %>% 
+  collect()
+# innerjoin by airport name (faa)
+busy_ap <- inner_join(busy, airports_tbl, by = "faa", 
+                      copy = T) %>%
+            arrange(desc(n))
+busy_ap$lat <- as.numeric(busy_ap$lat)
+busy_ap$lon <- as.numeric(busy_ap$lon)
+
+usa <- map_data("usa")
+gg1 <- ggplot() + 
+  geom_polygon(data = usa, aes(x = long, y = lat, group = group),
+               fill = "navajowhite", color = "navajowhite4") + 
+    coord_fixed(1.3) + 
+  geom_point(data = busy_ap, aes(x = lon, y = lat, size = n )) + 
+  geom_text(data = busy_ap, aes(lon, lat, label=dest,
+                                colour = factor(dest), fontface = "bold"))
+gg1
+```
+
+2. Map the top 10 busiest direct routes. Size of lines should reflect the number of flights through that route.
+* The data based on the year 2000. 
+```{r}
+busyroutes <- flight2000 %>%
+  group_by(origin,dest) %>% 
+  summarise(n = n()) %>% 
+  arrange(desc(n)) %>%
+  head(10) %>% 
+  collect()
+toproutes <- busyroutes %>% 
+  left_join(airports_tbl, by = c("origin" = "faa"), copy = T) %>% 
+  rename(lon_from = lon, lat_from = lat) %>% 
+  left_join(airports_tbl, by = c("dest" = "faa"), copy = T) %>% 
+  rename(lon_to = lon, lat_to = lat) %>%
+  select(origin, lon_from, lat_from, dest, lon_to, lat_to, n)
+
+# Convert the lat and lon from character to double
+toproutes$lon_from <- as.numeric(toproutes$lon_from)
+toproutes$lon_to <- as.numeric(toproutes$lon_to)
+toproutes$lat_from <- as.numeric(toproutes$lat_from)
+toproutes$lat_to <- as.numeric(toproutes$lat_to)
+toproutes$scale_n <- 0.1 + 1.9 * (
+  toproutes$n - min(toproutes$n))  / (max(toproutes$n)- min(toproutes$n))
+
+airport <- unique(c(toproutes$origin, toproutes$dest)) 
+topairports <- as.data.frame(airport)
+topairports <- topairports %>%
+  left_join(airports_tbl, by = c("airport" = "faa"), copy = T) %>% 
+  select(airport, lon, lat)
+topairports$lon <- as.numeric(topairports$lon)
+topairports$lat <- as.numeric(topairports$lat)
+topairports
+
+```
+
+Plot
+* The different color showed different route and the size showed the number. 
+```{r}
+usa <- map_data("usa")
+gg2 <- ggplot() + 
+  geom_polygon(data = usa, aes(x = long, y = lat, group = group),
+               fill = "azure2", color = "azure4") + 
+    geom_curve(data = toproutes, aes(x = lon_from, xend = lon_to, y = lat_from, 
+                                     yend = lat_to, colour = factor(n)), 
+               curvature = .5, arrow = arrow(length = unit(0.3, "cm")), 
+               size = toproutes$scale_n) +
+    coord_fixed(1.3) + 
+  geom_point(data = topairports, aes(x = lon, y = lat))  
+  #geom_text(data = topairports, aes(lon, lat, label=airport, fontface = "bold"), colour = "red")
+
+gg2
+```
+
+
+3. LAX:
+  
+
+    (a). Reproduce above plot. Visualize and explain some prominent features you observe. For example, what happened at points 1-5?
+```{r}
+LAX_traf$date <- as.Date(paste(LAX_traf$year, LAX_traf$month, LAX_traf$dayofmonth,
+                               sep='-'))
+
+break.vec <- seq(from=as.Date("1998-01-01"), to=as.Date("2008-01-01"), by="year")
+gg3 <- ggplot() +
+  geom_line(data = LAX_traf, aes(x = date, y = n)) + 
+  scale_x_date(breaks = break.vec,date_labels = "%Y", 
+               limits = as.Date(c('1998-1-1', '2009-1-1'))) +
+  coord_fixed(ratio=1.2) +
+  ggtitle("LAX air traffic") +  
+  geom_label(label = c("5","1","3","2","4"), 
+             aes(x = as.Date(c('2001-1-1', '2001-9-11', 
+                               '2004-7-1', '2004-11-25', '2008-1-1')), 
+             y = c(1200, 1070, 960, 930, 1200)))
+gg3
+```
+* Explaination: The label #1 showed sharply decrease, I believed the reason is the 911 make people don't want to travel a lot. The label #2 and #3 showed the in Noverber (or December) and July there is holidays make this parttern. Since during Thanksgiving or close to Chrismas, families member usually want to stay at home and travel less. Also, independence day in July, people won't travel for business a lot. The label #4 showed sharply decrease, the possible reason for this is because of economic depression in 2008. The label #5 showed increase is because of Los Angeles finished city constructions, so people travel to LA more. 
+
+    (b). Visualize and explain seasonal effects.
+    * Answer based on the flight in 2000
+```{r}
+LAX2000 <- LAX_traf %>% 
+  filter(year == 2000)
+
+LAX2000$season <- (LAX2000$month%/%4 + 1)
+#table to show seasonal difference
+LAX2000 %>% 
+  group_by(season) %>%
+  summarise(traffic_n = sum(n))
+#plot to show seasonal difference
+gg4 <- ggplot() +
+  geom_line(data = LAX2000, aes(x = date, y = n)) + 
+  scale_x_date(date_breaks = "1 month", 
+               date_labels = "%m", limits = as.Date(c('2000-1-1', 
+                                                      '2000-12-31'))) +
+  coord_fixed(ratio=0.2) +
+   xlab("Date") + ylab("Number of flights") + 
+  ggtitle("Seasonal LAX air traffic in 2000")
+gg4
+```
+* The table and plot showed the seasonal effect on the flight traffic in LAX (in 2000). Winter quater had lowest traffic and summer and fall quater had busies traffic. The possible reason for this is because students have their summer break so they have their vacation during summer. In addition, people usually tend to stay at home during winter due to holiday and bad weather. 
+
+    (c). Visualize and explain weekly effects.
+    * Answer based on the flight in 2000
+```{r}
+week <- LAX2000 %>%
+  group_by(dayofweek) %>%
+  summarise(traffic_n = sum(n))
+ggplot() +
+  geom_bar(data = week, aes(x = dayofweek, y = traffic_n), stat = "identity")
+```
+
+* The histgram showed that the Sat and Sun had less traffic. From Monday to Friday, there were high demands for flights for business travel.  
+  
+    (d). Map top 10 destinations from LAX. Size of dots should reflect the number of flights from LAX to that destination.
+    * Answer `based on the flight in 2000`. The differenct color indicated different airport and size of dots reflect the number of flights from LAX to that destination. 
+```{r}
+LAX2000_dest1 <- inner_join(LAX2000_dest, airports_tbl,  
+                        by = c("dest" = "faa"), copy = T) %>%
+              ungroup() %>%
+             select(dest, n, lat, lon) %>%
+              collect()
+```
+```{r}
+LAX2000_dest1$lat <- as.numeric(LAX2000_dest1$lat)
+LAX2000_dest1$lon <- as.numeric(LAX2000_dest1$lon)
+usa <- map_data("usa")
+gg5 <- ggplot() + 
+  geom_polygon(data = usa, aes(x = long, y = lat, group = group),
+               fill = "seashell", color = "seashell3") + 
+    coord_fixed(1.3) + 
+  geom_point(data = LAX2000_dest1, aes(x = lon, y = lat, 
+                                       size = n, color = dest))
+  
+gg5
+```
+  
+4. Build a predictive model for the arrival delay (`arrdelay`) of flights flying from LAX. Use the same filtering criteria as in the [lecture notes](http://hua-zhou.github.io/teaching/biostatm280-2018winter/slides/12-sparklyr/sparklyr-flights.html) to construct training and validation sets. You are allowed to use a maximum of 5 predictors. The prediction performance of your model on the validation data set will be an important factor for grading this question.
+### Compute the linear model.
+```{r}
+system.time(
+model_data <- flights_tbl %>%
+    filter(origin == "LAX") %>%
+    filter(!is.na(arrdelay) & !is.na(depdelay) & !is.na(distance)) %>%
+    filter(depdelay > 15 & depdelay < 240) %>%
+    filter(arrdelay > -60 & arrdelay < 360) %>%
+    filter(year >= 2003 & year <= 2007) %>%
+    left_join(airlines_tbl, by = c("uniquecarrier" = "code")) %>%
+    mutate(hour = as.integer(crsdeptime / 100)) %>%
+    select(year, month, dayofweek, arrdelay, depdelay, 
+           crsdeptime, distance, uniquecarrier, description, hour)
+)
+
+# Partition the data into training and validation sets
+model_partition <- model_data %>% 
+  sdf_partition(train = 0.8, valid = 0.2, seed = 5555)
+system.time(
+  ml1 <- model_partition$train %>%
+    ml_linear_regression(arrdelay ~ distance + depdelay + dayofweek + hour)
+)
+
+# Summarize the linear model
+summary(ml1)
+#Find MSE
+result_valid <- sdf_predict(ml1, model_partition$valid) %>%
+  mutate(residual = arrdelay - prediction) %>%
+  summarize(mse = mean(residual^2, na.rm = T))
+result_valid
+```
+* The R-Square: *0.8834*.
+* The MSE: Model: 13.44^2 = *180.6336*, Prediction: *181.9295*.
+* The R-Square is 0.8834, which close to 1. In addition, the MSE of model and valid prediction were very close. Therefore, the model (arrdelay ~ distance + depdelay + dayofweek + hour) is significant and reliable.  
+
+### Assess model performance
+```{r}
+# Calculate average gains by predicted decile
+system.time(
+  model_deciles <- lapply(model_partition, function(x) {
+    sdf_predict(ml1, x) %>%
+      mutate(decile = ntile(desc(prediction), 10)) %>%
+      group_by(decile) %>%
+      summarize(arrdelay = mean(arrdelay)) %>%
+      select(decile, arrdelay) %>%
+      collect()
+  })
+)
+model_deciles
+
+# Create a summary dataset for plotting
+deciles <- rbind(
+  data.frame(data = 'train', model_deciles$train),
+  data.frame(data = 'valid', model_deciles$valid),
+  make.row.names = FALSE
+)
+deciles
+
+# Plot average arrdelay by predicted decile
+deciles %>%
+  ggplot(aes(factor(decile), arrdelay, fill = data)) +
+  geom_bar(stat = 'identity', position = 'dodge') +
+  labs(title = 'Average arrdelay by predicted decile', 
+       x = 'Decile', y = 'Minutes')
+```
+
+* Based on the Plot above, the difference between train and valid was very small. So the model showed great matching with valid data. 
+
+### Visualize predictions
+* Use dataset 2008:
+```{r}
+# Select data from an out of time sample
+
+data_2008 <- flights_tbl %>%
+  filter(origin == "LAX") %>%
+  filter(!is.na(arrdelay) & !is.na(depdelay) & !is.na(distance)) %>%
+  filter(depdelay > 15 & depdelay < 240) %>%
+  filter(arrdelay > -60 & arrdelay < 360) %>%
+  filter(year == 2008) %>%
+  left_join(airlines_tbl, by = c("uniquecarrier" = "code")) %>%
+  mutate(hour = as.integer(crsdeptime / 100)) %>%
+  select(year, month, arrdelay,dayofweek, depdelay, distance, uniquecarrier, 
+         description, origin, dest, hour)
+data_2008
+
+```
+```{r}
+# Summarize data by carrier
+carrier <- sdf_predict(ml1, data_2008) %>%
+  group_by(description) %>%
+  summarize(arrdelay = mean(arrdelay), prediction = mean(prediction), 
+            freq = n()) %>%
+  filter(freq > 800) %>%
+  collect()
+
+# Summarize data by hour
+hour <- sdf_predict(ml1, data_2008) %>%
+  group_by(hour) %>%
+  summarize(arrdelay = mean(arrdelay), prediction = mean(prediction), 
+            freq = n()) %>%
+  filter(freq > 600) %>%
+  collect()
+```
+
+```{r}
+# Plot actual and predicted arrival delay by airline carrier
+ggplot(carrier, aes(arrdelay, prediction)) +
+  geom_point(alpha = 0.75, color = 'red', shape = 3) +
+  geom_abline(intercept = 0, slope = 1, alpha = 0.15, color = 'blue') +
+  geom_text(aes(label = substr(description, 1, 20)),
+            size = 3, alpha = 0.75, vjust = -1) +
+  labs(title='Average Arrival Delay Forecast', x = 'Actual', y = 'Predicted')
+
+# Plot actual and predicted arrival delay by Hour
+ggplot(hour, aes(arrdelay, prediction)) + 
+  geom_point(alpha = 0.75, color = 'red', shape = 3) +
+  geom_abline(intercept = 0, slope = 1, alpha = 0.15, color = 'blue') +
+  geom_text(aes(label = substr(hour, 1, 20)), 
+            size = 3, alpha = 0.75, vjust = -1) +
+  labs(title='Average Arrival Delay Forecast', x = 'Actual', y = 'Predicted')
+```
+
+* When visulizaing the predicted value verse the actual value (based on hour), the data points are roughly along the reference line (predicted:actual value = 1:1), but not perfect (most of the point are above the line). Thus, the linear model generated by training data do not has perfect ability in prediction. The possible for this could be the dataset itself, if we use another year the result might be difference. In addition, the data showed that there are minutes between smallest and largest arrival delay. So the hour can be a good predictor for arrival delay. 
+* When visulizaing the predicted value verse the actual value (based on carriers), the points almost close to each other(no big difference) except United airline, therefore, carrier may not be a necessary predictor for this model. 
+
+    
+5. Visualize and explain any other information you want to explore.
+* I choose to find the top 10 destination that most frequently delay more than 30 min.
+```{r}
+LAX_delay <- inner_join(LAX_delay30, airports_tbl,
+                          by = c("dest" = "faa"), copy = T) %>%
+  ungroup() %>%
+  select(dest, n, lat, lon) %>%
+  collect()
+```
+```{r}
+
+LAX_delay$lat <- as.numeric(LAX_delay$lat)
+LAX_delay$lon <- as.numeric(LAX_delay$lon)
+usa <- map_data("usa")
+gg6 <- ggplot() + 
+  geom_polygon(data = usa, aes(x = long, y = lat, group = group),
+               fill = "honeydew", color = "honeydew4") + 
+    coord_fixed(1.3) + 
+  geom_point(data = LAX_delay, aes(x = lon, y = lat, color = n, size = 3)) +
+   scale_color_gradientn(colours=rainbow(3))
+gg6
+```
+
+
+### Disconnect 
+```{r}
+spark_disconnect_all()
+```
+  
+  
