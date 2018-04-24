@@ -5,6 +5,9 @@
 > Student Name: Huiyu Hu
 
 ## Homework Topics
+
+* All class materials was posted on Prof. Zhou's teaching website: [Link](http://hua-zhou.github.io/teaching/biostatm280-2018winter/index.html)
+
 ### HW1:
 * Linux Shell
 * R Batch Run
