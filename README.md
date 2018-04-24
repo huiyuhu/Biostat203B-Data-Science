@@ -1,4 +1,4 @@
-# biostat-m280-2018-winter
+# UCLA_Biostat203B_Data_Science （2018winter）
 
 > For class BIOSTAT 203B (Introduction to Data Science), which focuses on software tools for data scientists
 
