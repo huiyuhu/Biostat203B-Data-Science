@@ -8,18 +8,22 @@
 
 * All class materials was posted on Prof. Zhou's teaching website: [Link](http://hua-zhou.github.io/teaching/biostatm280-2018winter/index.html)
 
-### HW1: `Grade: 97`
+### HW1:
+#### `Grade: 97/100`
 * Linux Shell
 * R Batch Run
 
-### HW2: `Grade: 98`
+### HW2: 
+#### `Grade: 98/100`
 * Exploratory Data Analysis of R (including ggplot2)
 * Tidyverse
 
-### HW3: `Grade: 99`
+### HW3: 
+#### `Grade: 99/100`
 * Shiny App - The shiny app link is here: [LA City Employee Payroll](https://huiyuhu.shinyapps.io/lapayrolls/)
 * SQLite database (including the transform in database, plot in R strategy)
 
-### HW4: `Grade: 100`
+### HW4: 
+#### `Grade: 100/100`
 * Distributed data analysis with sparklyr; Hadoop; YARN cluster
 * Cloud computing with GCP 
